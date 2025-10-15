@@ -39,7 +39,7 @@ describe("EditableTable", () => {
     });
 
     const rows = getAllByRole(tableBody, "row");
-    expect(rows[0]).toBeInTheDocument(); // Garante que a primeira linha existe
+    expect(rows[0]).toBeTruthy(); // Garante que a primeira linha foi encontrada e existe
     expect(rows).toHaveLength(2); // 1 linha de dados + 1 linha vazia
 
     const firstRowInputs = getAllByRole(rows[0], "textbox");

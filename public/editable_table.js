@@ -37,8 +37,7 @@ export class EditableTable {
             input.addEventListener('input', () => {
                 col.set(item, input.value);
                 // Se for a última linha e começar a digitar, adiciona nova linha
-                if (tr === this.table.lastElementChild && this.hasValue(item)) {
-                    this.items.push(item);
+                if (tr === this.table.lastElementChild && this.hasValue(item)) {                    
                     this.table.appendChild(this.createRow(this.emptyItem()));
                 }
                 this.onChange(this.getItems());
