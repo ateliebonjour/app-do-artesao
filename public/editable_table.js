@@ -10,7 +10,6 @@ export class EditableTable {
         this.onChange = onChange;
         this.items = items;
         this.render();
-        this.attachListeners();
     }
 
     render() {
@@ -26,6 +25,10 @@ export class EditableTable {
     createRow(item) {
         const tr = document.createElement('tr');
         this.columns.forEach((col, idx) => {
+            if (!col || typeof col.get !== 'function' || typeof col.set !== 'function') {
+                console.error('Column definition is invalid:', col, idx, this.columns);
+                return;
+            }
             const td = document.createElement('td');
             const input = document.createElement('input');
             input.type = col.type || 'text';
@@ -66,18 +69,16 @@ export class EditableTable {
         return rows
             .map(tr => {
                 const obj = this.emptyItem();
-                tr.querySelectorAll('input').forEach((input, idx) => {
-                    this.columns[idx].set(obj, input.value);
+                const inputs = tr.querySelectorAll('input');
+                // Só processa se o número de inputs for igual ao número de columns
+                if (inputs.length !== this.columns.length) return null;
+                inputs.forEach((input, idx) => {
+                    if (this.columns[idx] && typeof this.columns[idx].set === 'function') {
+                        this.columns[idx].set(obj, input.value);
+                    }
                 });
                 return obj;
             })
-            .filter(item => this.hasValue(item));
-    }
-
-    attachListeners() {
-        // Listener para mudança de qualquer célula
-        this.table.addEventListener('change', () => {
-            this.onChange(this.getItems());
-        });
+            .filter(item => item && this.hasValue(item));
     }
 }
