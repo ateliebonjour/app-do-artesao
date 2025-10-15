@@ -31,21 +31,36 @@ jobs:
       - name: Run unit tests
         run: npx vitest run
 
-      - name: Build static site (if needed)
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build static site
         run: |
           mkdir -p dist
           cp -r public/* dist/
           cp index.html dist/
           cp ingredientes.html dist/
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
           path: ./dist
 
   deploy:
-    needs: test
+    needs: build
     # Permissões específicas para o job de deploy
     permissions:
       pages: write
