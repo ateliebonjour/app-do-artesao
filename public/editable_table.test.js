@@ -1,6 +1,7 @@
-// Teste unitário para EditableTable usando Jest
-// Certifique-se de instalar o jest e jsdom: npm install --save-dev jest jsdom
+// Teste unitário para EditableTable usando Vitest
+// Certifique-se de instalar o vitest e jsdom: npm install --save-dev vitest jsdom
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import EditableTable from '../public/editable_table.js';
 
 // Mock do DOM para jsdom
@@ -25,7 +26,7 @@ describe('EditableTable', () => {
         { name: 'valor', label: 'Valor', get: row => row.valor, set: (row, v) => row.valor = v }
       ],
       data: [ { nome: 'Arroz', valor: '10' } ],
-      onChange: jest.fn()
+      onChange: vi.fn()
     });
   });
 
