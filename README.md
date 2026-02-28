@@ -23,24 +23,42 @@ O Gestor Artesã é uma aplicação pensada para pessoas artesãs e empreendedor
 
 ## Tecnologias
 
-- HTML, CSS e JavaScript puro
-- Possibilidade futura de build para Android/iOS
+- **Front-end Essencialista:** HTML, Vanilla JS e CSS com **Tailwind CSS v4** compilados via **Vite**.
+- **Agentic-First:** O projeto possui diretrizes em código (Context as Code) na pasta `.agents/` orientando ferramentas e LLMs a manter o padrão arquitetural.
+- **Docker-First:** Proibido instalar dependências Node no Host. Todo gerenciamento via contêineres e **Devcontainers** (`node:20-alpine`).
+- Persistência Local via IndexedDB (para atuar Offline e Standalone) com possibilidade futura de sync via Cloud.
 
 ## Arquitetura
 
 - Segue o padrão arquitetural [A-Frame](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#a-frame-arch)
 - Sempre que possível, testes sem mocks conforme proposto por James Shore
 
-## Como rodar
+## Como rodar e desenvolver
 
-1. Clone o repositório
-2. Abra o arquivo `index.html` em seu navegador
-3. Para desenvolvimento local, pode-se usar um servidor simples:
+Aviso: **Não instale ferramentas localmente** (ex: Node/npm no Host).
+
+1. Clone o repositório.
+2. Certifique-se de ter o Docker e Docker Compose instalados.
+3. Suba o ambiente e instale as dependências:
    ```bash
-   cd /caminho/do/projeto
-   python3 -m http.server 8000
+   docker compose up -d
+   docker compose exec app npm install
    ```
-   E acesse: http://localhost:8000
+4. Inicie o servidor Vite:
+   ```bash
+   docker compose exec app npm run dev
+   ```
+   E acesse: [http://localhost:5173](http://localhost:5173).
+
+5. (Opcional) Abra o projeto num **Devcontainer** (VSCode / Cursor) que ele automaticamente fará o bind no container.
+
+---
+
+### Diretrizes para IA (Agentes)
+**Regra de Ouro:** Antes de implementar uma feature ou testes, leia OBRIGATORIAMENTE os arquivos:
+1. `.cursorrules` (Na raiz).
+2. O workflow em `.agents/workflows/create_feature.md`.
+3. As regras de arquitetura em `.agents/rules/`.
 
 ---
 

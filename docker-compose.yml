@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173" # Vite default port
+      - "8000:8000" # Python/Simple HTTP server port
+    environment:
+      - NODE_ENV=development
+    command: tail -f /dev/null
