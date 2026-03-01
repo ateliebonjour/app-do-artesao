@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup Vibe: Acolhedora</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f' },
+                        stone: { 50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 500: '#78716c', 800: '#292524', 900: '#1c1917' },
+                        terracotta: { 500: '#c05621', 600: '#9c4221' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#fcfaf8] text-stone-800 h-screen flex flex-col overflow-hidden">
+    <!-- Top Nav -->
+    <header class="bg-white shadow-sm border-b border-amber-50 h-16 flex items-center justify-between px-6 z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-amber-100 p-2.5 rounded-2xl text-amber-700 shadow-inner"><i data-lucide="cookie" class="w-6 h-6"></i></div>
+            <span class="font-bold text-xl text-stone-900 tracking-tight">Ateliê Bonjour</span>
+        </div>
+        <div class="flex items-center gap-5">
+            <button class="text-stone-400 hover:text-amber-600 transition-colors relative">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+                <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-terracotta-500 rounded-full border border-white"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-stone-50 py-1 px-2 rounded-full transition-colors">
+                <img src="https://ui-avatars.com/api/?name=Artesao&background=d97706&color=fff&rounded=true" class="w-9 h-9 rounded-full border-2 border-amber-100 shadow-sm">
+                <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400"></i>
+            </div>
+        </div>
+    </header>
+    
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-amber-50 p-5 space-y-2 hidden md:block">
+            <p class="text-xs font-bold text-stone-400 uppercase tracking-widest px-3 mb-4 mt-2">Visão Geral</p>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-amber-50 text-amber-900 rounded-2xl font-bold transition-all"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-stone-500 hover:bg-stone-50 hover:text-stone-800 rounded-2xl font-semibold transition-all"><i data-lucide="book-open-text" class="w-5 h-5"></i> Receitas & Fichas</a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-stone-500 hover:bg-stone-50 hover:text-stone-800 rounded-2xl font-semibold transition-all"><i data-lucide="package" class="w-5 h-5"></i> Meus Materiais</a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-stone-500 hover:bg-stone-50 hover:text-stone-800 rounded-2xl font-semibold transition-all"><i data-lucide="calculator" class="w-5 h-5"></i> Orçamentos</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-stone-900 tracking-tight">Bom dia, Lucas! ☕</h1>
+                        <p class="text-stone-500 font-medium text-lg mt-1">Sua semana está cheia, vamos preparar a produção?</p>
+                    </div>
+                    <button class="bg-amber-600 text-white px-6 py-3.5 text-sm rounded-2xl font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 transform">
+                        <i data-lucide="plus" class="w-5 h-5"></i> Novo Orçamento
+                    </button>
+                </div>
+
+                <!-- Metrics Cards (Crafty style) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+                            <i data-lucide="piggy-bank" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-stone-500 font-medium mb-1">Entradas Previstas</p>
+                        <p class="text-3xl font-extrabold text-stone-800">R$ 1.840<span class="text-lg text-stone-400 font-medium">,00</span></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-stone-500 font-medium mb-1">A Produzir na Semana</p>
+                        <p class="text-3xl font-extrabold text-stone-800">14 <span class="text-lg text-stone-400 font-medium">produtos</span></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-terracotta-100 hover:border-terracotta-200 hover:shadow-md transition-all relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-white to-terracotta-50 opacity-50 rounded-bl-[100px]"></div>
+                        <div class="w-12 h-12 rounded-2xl bg-terracotta-50 text-terracotta-600 flex items-center justify-center mb-4 relative z-10">
+                            <i data-lucide="shopping-basket" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-stone-500 font-medium mb-1 relative z-10">Lista de Compras</p>
+                        <p class="text-3xl font-extrabold text-stone-800 relative z-10">5 <span class="text-lg text-stone-400 font-medium">ingredientes faltando</span></p>
+                    </div>
+                </div>
+
+                <!-- Dashboard List instead of rigid table -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-extrabold text-stone-800">Entregas de Hoje e Amanhã</h2>
+                    <a href="#" class="text-amber-600 font-bold text-sm hover:underline">Ver Calendário Completo</a>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-stone-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-amber-200 transition-colors cursor-pointer">
+                        <div class="flex items-center gap-5">
+                            <div class="bg-amber-50 w-16 h-16 rounded-[1.25rem] flex flex-col items-center justify-center text-amber-700 shadow-inner">
+                                <span class="text-xs font-bold uppercase tracking-wider">Hoje</span>
+                                <span class="text-2xl font-black -mt-1">15</span>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-lg text-stone-900 group-hover:text-amber-700 transition-colors">Bolo de Casamento Rústico</h3>
+                                <div class="flex items-center gap-3 text-sm text-stone-500 font-medium mt-1">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4"></i> Amanda Marques</span>
+                                    <span class="w-1 h-1 bg-stone-300 rounded-full"></span>
+                                    <span class="flex items-center gap-1.5"><i data-lucide="clock-4" class="w-4 h-4"></i> Entrega às 16:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-5 w-full md:w-auto justify-between md:justify-end border-t md:border-0 border-stone-100 pt-4 md:pt-0">
+                            <span class="text-amber-700 bg-amber-50 px-4 py-1.5 rounded-xl text-sm font-bold border border-amber-100">Fazendo as Massas...</span>
+                            <button class="w-10 h-10 bg-stone-50 rounded-xl flex items-center justify-center text-stone-400 group-hover:bg-amber-100 group-hover:text-amber-700 transition-colors"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-stone-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-amber-200 transition-colors cursor-pointer opacity-75">
+                        <div class="flex items-center gap-5">
+                            <div class="bg-emerald-50 w-16 h-16 rounded-[1.25rem] flex flex-col items-center justify-center text-emerald-700 shadow-inner">
+                                <span class="text-xs font-bold uppercase tracking-wider">Amanhã</span>
+                                <span class="text-2xl font-black -mt-1">16</span>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-lg text-stone-900 group-hover:text-emerald-700 transition-colors">150 Docinhos Mistos (Festa)</h3>
+                                <div class="flex items-center gap-3 text-sm text-stone-500 font-medium mt-1">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4"></i> Escola Infantil Carrossel</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-5 w-full md:w-auto justify-between md:justify-end border-t md:border-0 border-stone-100 pt-4 md:pt-0">
+                            <span class="text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-xl text-sm font-bold border border-emerald-100"><i data-lucide="check" class="w-4 h-4 inline-block -mt-1 mr-1"></i> Finalizado no Forno</span>
+                            <button class="w-10 h-10 bg-stone-50 rounded-xl flex items-center justify-center text-stone-400 group-hover:bg-amber-100 group-hover:text-amber-700 transition-colors"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
