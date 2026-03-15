@@ -1,7 +1,7 @@
 # TASK-011: Design UX - Mockup e Interface de Fichas Técnicas
 
 **Épico Pai:** [EPIC-003](../epics/EPIC-003-mvp-cadastro-base.md)
-**Status:** `[TODO]`
+**Status:** `[DONE]`
 **Responsável:** Especialista de Design
 
 ## Contexto
@@ -16,5 +16,5 @@ Fichas Técnicas (antigas Receitas Base) exigem Alta Densidade de Informação, 
 - Usar a arquitetura visual validada de Tabelas no Desktop e Cards no Mobile.
 
 ## Critérios de Aceite
-- [ ] Mockups estáticos desenvolvidos e salvos em `doc/mockups`.
-- [ ] A fluidez da UI mobile (inserção rápida de ingredientes sem quebrar a tela) atende ao especificado.
+- [x] Mockups estáticos desenvolvidos e salvos em `doc/mockups`.
+- [x] A fluidez da UI mobile (inserção rápida de ingredientes sem quebrar a tela) atende ao especificado.

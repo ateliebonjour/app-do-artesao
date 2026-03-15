@@ -1,7 +1,7 @@
 # TASK-013: Design UX - Mockup e Interface de Produtos
 
 **Épico Pai:** [EPIC-003](../epics/EPIC-003-mvp-cadastro-base.md)
-**Status:** `[TODO]`
+**Status:** `[DONE]`
 **Responsável:** Especialista de Design
 
 ## Contexto
@@ -16,5 +16,5 @@ O Artesão finaliza seu trabalho com o "Produto", o item que vai para a vitrine.
 - Mockups limpos via HTML e Tailwind.
 
 ## Critérios de Aceite
-- [ ] Mockups estáticos desenhados e salvos.
-- [ ] Hierarquia de informação focada no lucro/custo do produto validada.
+- [x] Mockups estáticos desenhados e salvos.
+- [x] Hierarquia de informação focada no lucro/custo do produto validada.
