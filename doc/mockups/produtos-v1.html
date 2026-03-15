@@ -32,6 +32,10 @@
     .indicator-anim { animation: countUp 0.3s ease-out; }
     #save-toast { transition: all 0.3s ease; transform: translateY(100%); opacity: 0; }
     #save-toast.show { transform: translateY(0); opacity: 1; }
+    @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .anim-fade-in { animation: fadeInScale 0.3s ease-out; }
+    #dynamic-cmv-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    #dynamic-cmv-card:hover { transform: translateY(-2px); border-color: #fbbf24; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     input:focus, select:focus { border-color: #fbbf24 !important; box-shadow: 0 0 0 3px rgba(251,191,36,0.2) !important; outline: none; }
 
     /* CMV Indicator Bars */
@@ -105,45 +109,6 @@
     <!-- CONTENT -->
     <div class="p-4 md:p-8 max-w-6xl mx-auto w-full">
 
-      <!-- KPI Discreto por Categoria -->
-      <div class="bg-white border border-stone-100 rounded-2xl shadow-sm px-5 py-4 mb-6">
-        <div class="flex flex-wrap items-center gap-6">
-          <p class="text-[11px] font-black text-stone-400 uppercase tracking-widest whitespace-nowrap">CMV Médio por Categoria</p>
-          <!-- Encomenda -->
-          <div class="flex items-center gap-2">
-            <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-100">Encomenda</span>
-            <div class="flex items-center gap-1.5">
-              <div class="w-16 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bg-emerald-400" style="width:27%"></div>
-              </div>
-              <span class="text-xs font-black text-emerald-700">27%</span>
-            </div>
-            <span class="text-[10px] font-semibold text-stone-400">2 produtos</span>
-          </div>
-          <!-- Pronta Entrega -->
-          <div class="flex items-center gap-2">
-            <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-stone-100 text-stone-600 border border-stone-200">P. Entrega</span>
-            <div class="flex items-center gap-1.5">
-              <div class="w-16 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bg-amber-400" style="width:50%"></div>
-              </div>
-              <span class="text-xs font-black text-amber-700">50%</span>
-            </div>
-            <span class="text-[10px] font-semibold text-stone-400">1 produto</span>
-          </div>
-          <!-- Páscoa -->
-          <div class="flex items-center gap-2">
-            <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-terracotta-50 text-terracotta-500 border border-terracotta-100">Páscoa</span>
-            <div class="flex items-center gap-1.5">
-              <div class="w-16 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bg-red-400" style="width:100%"></div>
-              </div>
-              <span class="text-xs font-black text-red-600">125% ⚠️</span>
-            </div>
-            <span class="text-[10px] font-semibold text-stone-400">1 produto</span>
-          </div>
-        </div>
-      </div>
 
 
       <!-- Filter + Group Bar -->
@@ -152,12 +117,29 @@
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-stone-400"></i>
           <input type="text" placeholder="Buscar produto..." class="w-full bg-stone-50 border-none rounded-xl pl-9 pr-3 py-2 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all">
         </div>
-        <div class="flex items-center gap-2 text-xs font-semibold">
-          <span class="text-stone-400 hidden sm:inline">Grupo:</span>
-          <button onclick="filterGroup('todos')" class="px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors" id="g-todos">Todos</button>
-          <button onclick="filterGroup('encomenda')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors" id="g-encomenda">Encomenda</button>
-          <button onclick="filterGroup('pronta-entrega')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors" id="g-pronta-entrega">Pronta Entrega</button>
-          <button onclick="filterGroup('pascoa')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors" id="g-pascoa">Páscoa</button>
+        <div class="flex grow items-center gap-3 overflow-x-auto pb-2 sm:pb-0">
+          <span class="text-stone-400 text-xs font-bold whitespace-nowrap hidden sm:inline">Grupo:</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="filterGroup('todos')" class="px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors text-xs font-semibold" id="g-todos">Todos</button>
+            <button onclick="filterGroup('encomenda')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors text-xs font-semibold" id="g-encomenda">Encomenda</button>
+            <button onclick="filterGroup('pronta-entrega')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors text-xs font-semibold" id="g-pronta-entrega">Pronta Entrega</button>
+            <button onclick="filterGroup('pascoa')" class="px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors text-xs font-semibold" id="g-pascoa">Páscoa</button>
+          </div>
+        </div>
+        <!-- CMV Médio Dinâmico -->
+        <div id="dynamic-cmv-card" class="bg-white border-2 border-emerald-100 px-4 py-2 rounded-xl flex items-center shadow-sm min-w-[200px] anim-fade-in transition-all">
+          <div class="grow">
+            <div class="flex items-center justify-between gap-4 mb-0.5">
+              <p id="cmv-label-text" class="text-[9px] font-black text-stone-400 uppercase tracking-widest whitespace-nowrap">CMV Médio (Todos)</p>
+              <span id="cmv-count-text" class="text-[9px] font-black text-stone-300 uppercase whitespace-nowrap">0 PRODUTOS</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="avg-cmv-value" class="text-lg font-black text-emerald-600 leading-none">32%</span>
+              <div class="grow h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div id="avg-cmv-bar" class="h-full bg-emerald-400 rounded-full" style="width: 32%"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -511,6 +493,7 @@
         setTimeout(() => el.classList.remove('indicator-anim'), 300);
       });
 
+      calculateOverallAverage();
       scheduleSave();
     }
 
@@ -538,9 +521,52 @@
         b.className = 'px-3 py-1.5 bg-stone-100 text-stone-500 hover:bg-stone-200 rounded-lg transition-colors text-xs font-semibold';
       });
       document.getElementById('g-' + group).className = 'px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors text-xs font-semibold';
+      
+      const labelText = group === 'todos' ? 'Todos' : document.getElementById('g-' + group).textContent;
+      document.getElementById('cmv-label-text').textContent = `CMV Médio (${labelText})`;
+
       document.querySelectorAll('.prod-row').forEach(row => {
         row.style.display = (group === 'todos' || row.dataset.group === group) ? '' : 'none';
       });
+
+      calculateOverallAverage();
+    }
+
+    // === CALC OVERALL AVERAGE ===
+    function calculateOverallAverage() {
+      let totalCMV = 0, count = 0;
+      document.querySelectorAll('.prod-row').forEach(row => {
+        if (row.style.display !== 'none') {
+          const val = parseInt(row.querySelector('.cmv-value').textContent) || 0;
+          totalCMV += val;
+          count++;
+        }
+      });
+
+      const avg = count > 0 ? Math.round(totalCMV / count) : 0;
+      const valEl = document.getElementById('avg-cmv-value');
+      const barEl = document.getElementById('avg-cmv-bar');
+      const cardEl = document.getElementById('dynamic-cmv-card');
+      const countEl = document.getElementById('cmv-count-text');
+
+      valEl.textContent = `${avg}%`;
+      barEl.style.width = `${Math.min(avg, 100)}%`;
+      countEl.textContent = `${count} PRODUTO${count === 1 ? '' : 'S'}`;
+
+      // Color coding for the average
+      if (avg < 40) {
+        valEl.className = "text-lg font-black text-emerald-600 leading-none";
+        barEl.className = "h-full bg-emerald-400 rounded-full";
+        cardEl.className = "bg-white border-2 border-emerald-100 px-4 py-2 rounded-xl flex items-center shadow-sm min-w-[200px] anim-fade-in transition-all";
+      } else if (avg <= 70) {
+        valEl.className = "text-lg font-black text-amber-600 leading-none";
+        barEl.className = "h-full bg-amber-400 rounded-full";
+        cardEl.className = "bg-white border-2 border-amber-100 px-4 py-2 rounded-xl flex items-center shadow-sm min-w-[200px] anim-fade-in transition-all";
+      } else {
+        valEl.className = "text-lg font-black text-red-600 leading-none";
+        barEl.className = "h-full bg-red-400 rounded-full";
+        cardEl.className = "bg-white border-2 border-red-100 px-4 py-2 rounded-xl flex items-center shadow-sm min-w-[200px] anim-fade-in transition-all";
+      }
     }
 
     // === ADD PRODUCT (new empty row) ===
@@ -597,9 +623,14 @@
       }
     });
 
+    // Initialize
     lucide.createIcons();
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('status-text').textContent = `Salvo às ${timeStr}`;
     document.getElementById('status-bar').classList.remove('hidden');
     document.getElementById('status-bar').classList.add('flex');
+    calculateOverallAverage();
   </script>
 </body>
 </html>

@@ -181,11 +181,6 @@
     <div class="p-4 md:p-8 max-w-6xl mx-auto w-full">
 
 
-      <!-- Última Atualização (discreta) -->
-      <div class="flex items-center gap-2 text-[11px] text-stone-400 font-medium mb-6">
-        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-        <span>Última atualização: <span id="last-updated-time" class="font-bold text-stone-500">Hoje às 20:34:46</span></span>
-      </div>
 
 
       <!-- Search Bar -->
@@ -519,8 +514,6 @@
         const now = new Date();
         const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         text.textContent = `Salvo às ${timeStr}`;
-        const lastUpdated = document.getElementById('last-updated-time');
-        if (lastUpdated) lastUpdated.textContent = `Hoje às ${timeStr}`;
         saveBtn.classList.add('hidden');
         saveBtn.classList.remove('flex');
       }
@@ -682,8 +675,6 @@
     // Show status bar initially (clean state) with precise time
     const now = new Date();
     const initTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const lastUpdatedEl = document.getElementById('last-updated-time');
-    if (lastUpdatedEl) lastUpdatedEl.textContent = `Hoje às ${initTime}`;
     updateStatusBar(false);
     document.getElementById('status-text').textContent = `Salvo às ${initTime}`;
     document.getElementById('status-bar').classList.remove('hidden');
