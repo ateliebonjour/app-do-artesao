@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparação: Mobile Tables (RFC-003)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Esconde barra de rolagem mas mantém funcionalidade para uma aparência mais elegante do "celular" */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-8 font-sans">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Comparador de Soluções UI (Mobile Tables)</h1>
+            <p class="text-slate-600">Isto facilita a comparação lado a lado para validação do <strong>RFC-003</strong>.</p>
+        </div>
+
+        <div class="flex flex-col xl:flex-row gap-12 justify-center items-center xl:items-start">
+            
+            <!-- Opção 1 -->
+            <div class="flex flex-col items-center">
+                <div class="mb-6 text-center h-20">
+                    <h2 class="text-xl font-bold text-slate-800">Opção 1: Responsive Cards</h2>
+                    <p class="text-sm text-slate-500 max-w-xs mt-2">Design 100% responsivo focando na navegação vertical. Edita os valores expandindo cada ingrediente individualmente.</p>
+                </div>
+                <!-- Celular Mockup -->
+                <div class="relative w-[375px] h-[812px] bg-white rounded-[3rem] border-[12px] border-slate-800 shadow-2xl overflow-hidden ring-4 ring-slate-200">
+                    <!-- Notch Emulado -->
+                    <div class="absolute top-0 inset-x-0 h-6 bg-slate-800 rounded-b-3xl w-40 mx-auto z-10"></div>
+                    <iframe src="1-cards.html" class="w-full h-full border-none pt-2" title="Mockup Opção 1"></iframe>
+                </div>
+                <a href="1-cards.html" target="_blank" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium text-sm shadow-sm flex items-center gap-2">
+                    Abrir em Tela Cheia ↗
+                </a>
+            </div>
+
+            <!-- Divisor -->
+            <div class="hidden xl:flex flex-col items-center justify-center mt-64">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-slate-400 font-bold shadow-md border border-slate-100">
+                    VS
+                </div>
+            </div>
+
+            <!-- Opção 2 -->
+            <div class="flex flex-col items-center">
+                <div class="mb-6 text-center h-20">
+                    <h2 class="text-xl font-bold text-slate-800">Opção 2: Data Grid (Scroll Horizontal)</h2>
+                    <p class="text-sm text-slate-500 max-w-xs mt-2">Tabela clássica encolhida. A 1ª coluna fica travada (sticky) enquanto o resto rola horizontalmente.</p>
+                </div>
+                <!-- Celular Mockup -->
+                <div class="relative w-[375px] h-[812px] bg-white rounded-[3rem] border-[12px] border-slate-800 shadow-2xl overflow-hidden ring-4 ring-slate-200">
+                    <!-- Notch Emulado -->
+                    <div class="absolute top-0 inset-x-0 h-6 bg-slate-800 rounded-b-3xl w-40 mx-auto z-10"></div>
+                    <iframe src="2-data-grid.html" class="w-full h-full border-none pt-2" title="Mockup Opção 2"></iframe>
+                </div>
+                <a href="2-data-grid.html" target="_blank" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium text-sm shadow-sm flex items-center gap-2">
+                    Abrir em Tela Cheia ↗
+                </a>
+            </div>
+
+        </div>
+        
+        <div class="mt-16 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto">
+            <h3 class="text-lg font-bold text-slate-800 mb-3">Recomendação de UX (Como Lead Designer):</h3>
+            <p class="text-slate-600 mb-4">
+                O uso de <strong>Grids com Scroll Horizontal (Opção 2)</strong> no celular normalmente causa muita fricção para interações rápidas, 
+                podendo gerar toques acidentais ou problemas quando o teclado é aberto. 
+            </p>
+            <p class="text-slate-600">
+                A <strong>Opção 1 (Cards)</strong> costuma ser a melhor escolha porque respeita os paradigmas nativos de layout mobile, resultando 
+                em uma experiência muito mais segura, confortável e com alvos de toque perfeitamente espaçados.
+            </p>
+            <p class="text-slate-800 font-medium mt-4">
+                Teste as duas visualizações lado a lado acima interativamente e veja qual flui melhor na sua opinião.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

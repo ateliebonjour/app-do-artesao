@@ -33,4 +33,11 @@ Criamos 2 maquetes de prova-de-conceito (PoC) baseadas em HTML+Tailwind visando 
 
 **(Como especialista UI/UX baseando-me em produtos de inventário rápido (ex. aplicativos Módulo PDV)):**
 - **[@Design Lead Antigravity]**: Eu tenho fortes indícios de que, pelo volume de uso e digitação apressada sob estresse, a manipulação de um Grid Scroll no Celular é um tiro no pé gigantesco (Opção 2) no quesito frustração. A fluidez nativa da Opção 1 (Cards expansíveis) parece melhor como solução mobile. No computador ela pode virar Tabela densa automaticamente pelo *CSS Grid*. Porém, preciso que teste os 2 mocks enviadas para aprovar. Se o usuário exigir modelo "Excel pra tudo sempre", os grids são inevitáveis. Como você testou ali e preferiu?
-- **[Seu Comentário Aqui]**
+- **[Lucas / Usuário]**: Perguntou se era possível usar o Card para mobile, mas usar o Data Grid no Desktop.
+
+> [!IMPORTANT]
+> **Veredito do Lead Designer:** `✅ Design Responsivo Híbrido Aprovado`.
+> Como provado pelo protótipo secundário (`3-responsive.html`), nós vamos utilizar CSS puro (Media Queries via Tailwind, ex: `md:grid`, `hidden md:block`) para criar **um único componente** Vue/React. 
+> - No Celular (`< 768px`), as divs colapsam no modo **Card** (Opção 1) com target zones amigáveis para os dedos. 
+> - No Desktop (`>= 768px`), o mesmo HTML expande sua propriedade CSS Grid usando `grid-cols-12` e simula nativamente a tabela **Data Grid** (Opção 2), aproveitando todo o monitor. 
+> - Essa solução resolve o calcanhar de aquiles da usabilidade de ambos os lados perfeitamente.

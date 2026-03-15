@@ -19,4 +19,11 @@ Quando um Agente for encarregado de criar ou modificar uma interface de usuário
 - Nosso design system mora nas classes utilitárias. O uso de arquivos CSS customizados é **restrito**.
 - Cumpra a coesão de cores e propriedades do tema que será estabelecido no `tailwind.config.js`.
 
+## 5. Diretrizes Visuais Globais (A Vibe "Híbrida")
+Conforme estabelecido no **ADR-003**, toda a interface deve ser criada seguindo o padrão "Híbrido":
+- **Fonte Padrão:** Use a fonte `Outfit`.
+- **Cores Neutras:** Substitua todos os `gray`/`slate` por `stone` em seus designs para aquecer a interface.
+- **Cores Específicas:** O tema usa cores artesanais `amber` e `terracotta` para botões, acentos e notificações (evitar azuis/roxos corporativos).
+- **Responsividade Híbrida de Dados:** Ao criar tabelas e listas densas, construa um único HTML/Componente que se transforma de Data Grid no Desktop (`md:grid`) para Cards no Mobile (padrão base), sem scroll horizontal em telas pequenas. Veja os mocks em `doc/mockups/mobile-tables/3-responsive.html`.
+
 **Importante:** Se o Agente finalizou a fase de protótipo e vai aprovar uma nova "Task", ele deverá garantir que seu conhecimento resultante atualizou ou respeitou esta base.

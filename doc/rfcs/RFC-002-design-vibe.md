@@ -37,9 +37,18 @@ Recomendamos abrir no navegador pelo VS Code (ex. Live Server ou abrindo o arqui
 - **Contras:** Pode ser intimidador ("parece software de contador/faria lima"). 
 - **Protótipo Interativo:** [doc/mockups/vibe/3-modern.html](../../mockups/vibe/3-modern.html)
 
+### Opção 4: Híbrida (Densidade Moderna + Alma Acolhedora) `✅ VENCEDORA`
+- **Foco:** Equilíbrio perfeito entre eficiência operacional e identidade afetiva.
+- **Identidade:** O Layout denso e espacialmente inteligente da *Opção 3*, usando as cores quentes, fontes flexíveis (*Outfit*) e bordas suaves da *Opção 2*.
+- **Prós:** Permite colocar muitas informações em tabelas densas, sem fazer a tela parecer fria ou corporativa demais. Menos fadiga visual e maior alinhamento com a marca.
+- **Protótipo Interativo:** [doc/mockups/vibe/4-hybrid.html](../../mockups/vibe/4-hybrid.html)
+
 ## Espaço para Comentários (Para Agentes / Usuário)
 
 **(Por favor, registre seus argumentos em favor/comparações sobre qual caminho deve se tornar o Tema oficial da UI).**
 
-- **[@Lead de Design / Antigravity]**: Pelo histórico dos usuários de pequenas produções e da complexidade das tabelas que faremos, a Opção 1 nos dá mais liberdade para lidar com UI densa (receitas complexas) sem sobrecarregar a visão cognitiva, mas a Opção 2 é a melhor barreira de entrada emocional. Minha inclinação como Designer de Produto técnico em ferramentas densas sempre tende para o Neutro da Opção 1, agregando tons terracotas pequenos apens para accent color/call to action. 
-- **[Seu Comentário Aqui]**
+- **[@Lead de Design / Antigravity]**: Pelo histórico dos usuários de pequenas produções e da complexidade das tabelas que faremos, a Opção 1 nos dá mais liberdade para lidar com UI densa (receitas complexas) sem sobrecarregar a visão cognitiva, mas a Opção 2 é a melhor barreira de entrada emocional. Minha inclinação como Designer de Produto técnico em ferramentas densas sempre tende para o Neutro da Opção 1, agregando tons terracotas pequenos apenas para accent color/call to action. 
+
+> [!IMPORTANT]
+> **Veredito do Lead Designer:** Atendendo ao excelente feedback do Usuário, foi concebido o modelo **Híbrido (Opção 4)**. Esse modelo vence o RFC-002 por oferecer o melhor dos dois mundos: A arquitetura de informação e a densidade corporativa essencial para um painel de gestão aliado a UI/Tokens macios e artesanais. Este será o norte visual para todo o projeto!
+- **[Lucas / Usuário]**: Gostei da sensação do warm, mas não cabia muita informação, enquanto o modern tinha um bom equilíbrio. Pediu para mesclar a inteligência de componentes da 3 com a estética da 2, dando origem a Opção 4.
