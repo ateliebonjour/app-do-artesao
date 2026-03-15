@@ -180,53 +180,20 @@
     <!-- CONTENT -->
     <div class="p-4 md:p-8 max-w-6xl mx-auto w-full">
 
-      <!-- KPI Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
-          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-amber-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
-            <i data-lucide="package" class="w-3.5 h-3.5 text-amber-500"></i> Total de Insumos
-          </p>
-          <div class="flex items-end gap-3 relative z-10">
-            <p class="text-3xl font-black text-stone-900 tracking-tight">12</p>
-            <span class="text-[10px] font-extrabold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-lg mb-1.5">itens</span>
-          </div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
-          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
-            <i data-lucide="trending-down" class="w-3.5 h-3.5 text-emerald-500"></i> Estoque Baixo
-          </p>
-          <div class="flex items-end gap-3 relative z-10">
-            <p class="text-3xl font-black text-stone-900 tracking-tight">3</p>
-            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg mb-1.5 border border-amber-100/50">atenção</span>
-          </div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
-          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-terracotta-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
-            <i data-lucide="database" class="w-3.5 h-3.5 text-terracotta-500"></i> Última Atualização
-          </p>
-          <div class="flex items-end gap-3 relative z-10">
-            <p class="text-2xl font-black text-stone-900 tracking-tight">Hoje</p>
-            <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg mb-1.5 border border-emerald-100">Sincronizado</span>
-          </div>
-        </div>
+
+      <!-- Última Atualização (discreta) -->
+      <div class="flex items-center gap-2 text-[11px] text-stone-400 font-medium mb-6">
+        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+        <span>Última atualização: <span id="last-updated-time" class="font-bold text-stone-500">Hoje às 20:34:46</span></span>
       </div>
 
-      <!-- Search + Filter Bar -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
+
+      <!-- Search Bar -->
+      <div class="flex items-center gap-3 mb-6">
         <div class="relative w-full max-w-sm">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-stone-400"></i>
           <input type="text" placeholder="Buscar insumo..." id="search-input" oninput="filterRows(this.value)"
             class="w-full bg-stone-50 border-none rounded-xl pl-9 pr-3 py-2 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all">
-        </div>
-        <div class="flex items-center gap-2 text-xs font-semibold text-stone-500">
-          <span class="hidden sm:inline">Filtrar por unidade:</span>
-          <button onclick="filterUnit('todos')" class="px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors" id="filter-todos">Todos</button>
-          <button onclick="filterUnit('kg')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-kg">kg</button>
-          <button onclick="filterUnit('ml')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-ml">ml / L</button>
-          <button onclick="filterUnit('un')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-un">un</button>
         </div>
       </div>
 
@@ -549,7 +516,11 @@
       } else {
         status.classList.remove('bg-amber-50', 'text-amber-700', 'border-amber-100');
         status.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-100');
-        text.textContent = 'Todas as alterações salvas';
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        text.textContent = `Salvo às ${timeStr}`;
+        const lastUpdated = document.getElementById('last-updated-time');
+        if (lastUpdated) lastUpdated.textContent = `Hoje às ${timeStr}`;
         saveBtn.classList.add('hidden');
         saveBtn.classList.remove('flex');
       }
@@ -708,8 +679,13 @@
 
     // Initialize
     lucide.createIcons();
-    // Show status bar initially (clean state)
+    // Show status bar initially (clean state) with precise time
+    const now = new Date();
+    const initTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const lastUpdatedEl = document.getElementById('last-updated-time');
+    if (lastUpdatedEl) lastUpdatedEl.textContent = `Hoje às ${initTime}`;
     updateStatusBar(false);
+    document.getElementById('status-text').textContent = `Salvo às ${initTime}`;
     document.getElementById('status-bar').classList.remove('hidden');
     document.getElementById('status-bar').classList.add('flex');
   </script>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Produto – Ateliê Bonjour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f' },
+            stone: { 50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 500: '#78716c', 800: '#292524', 900: '#1c1917' },
+            terracotta: { 50: '#fef5f2', 100: '#fcebe5', 200: '#fad1c2', 500: '#c05621', 600: '#9c4221', 700: '#7b341e' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cmvUpdate { from { opacity: .5; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+    .cmv-bar-fill { transition: width 0.5s ease, background-color 0.4s ease; }
+    .anim-slide { animation: slideIn 0.2s ease-out; }
+    .cmv-anim { animation: cmvUpdate 0.3s ease-out; }
+    input:focus, select:focus { border-color: #fbbf24 !important; box-shadow: 0 0 0 3px rgba(251,191,36,0.2) !important; outline: none; }
+    #save-toast { transition: all 0.3s ease; transform: translateY(100%); opacity: 0; }
+    #save-toast.show { transform: translateY(0); opacity: 1; }
+    .comp-row:hover { background-color: #fafaf9; }
+  </style>
+</head>
+<body class="bg-[#fcfaf8] min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-stone-900 border-r border-stone-800 flex-col hidden md:flex fixed h-full z-30">
+    <div class="h-16 flex items-center px-6 border-b border-stone-800">
+      <div class="w-8 h-8 bg-amber-600 rounded-xl flex items-center justify-center text-white font-bold mr-3 shadow-md shadow-amber-600/30">
+        <i data-lucide="cookie" class="w-5 h-5"></i>
+      </div>
+      <span class="font-extrabold text-white text-lg tracking-tight">Ateliê Bonjour</span>
+    </div>
+    <nav class="flex-1 p-4 space-y-1 text-sm">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-3 pl-2">Cadastros</p>
+      <a href="insumos-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="package" class="w-4 h-4"></i> Insumos
+      </a>
+      <a href="fichas-tecnicas-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Fichas Técnicas
+      </a>
+      <a href="produtos-v1.html" class="flex items-center gap-3 px-3 py-2.5 bg-terracotta-500/10 text-terracotta-500 rounded-xl font-bold">
+        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Produtos
+      </a>
+    </nav>
+    <div class="p-4 border-t border-stone-800">
+      <div class="bg-stone-800 rounded-xl p-3 text-[10px] text-stone-400 font-medium space-y-1">
+        <p class="text-stone-300 font-bold uppercase tracking-wider mb-2">Fórmulas</p>
+        <div class="flex justify-between"><span>CMV</span><span class="text-amber-400">Custo÷Venda×100</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="md:ml-64 flex-1 flex flex-col">
+
+    <!-- TOP HEADER (breadcrumb) -->
+    <header class="bg-white border-b border-amber-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] sticky top-0 z-20 px-4 md:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="produtos-v1.html" class="flex items-center gap-1.5 text-stone-400 hover:text-stone-600 font-bold text-sm transition-colors">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Produtos</span>
+        </a>
+        <span class="text-stone-300">/</span>
+        <div>
+          <h1 class="text-lg font-extrabold text-stone-900 leading-tight tracking-tight">Bolo de Chocolate</h1>
+          <p class="text-[11px] text-stone-400 font-medium">Edição do produto</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Auto-save indicator -->
+        <div id="status-bar" class="hidden md:flex items-center gap-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+          <span id="status-text">Salvo</span>
+        </div>
+        <button onclick="saveAll()" class="bg-amber-600 text-white text-sm px-4 py-2 rounded-xl font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:-translate-y-px transition-all flex items-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Salvar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+      <!-- 2-column grid: editor left, CMV panel right -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: Dados + Composição -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- Dados Básicos card -->
+          <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm p-6">
+            <h2 class="font-black text-stone-900 text-base mb-5 flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-amber-500"></i> Dados do Produto
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Nome -->
+              <div class="sm:col-span-2">
+                <label class="block text-[11px] font-black text-stone-500 uppercase tracking-wider mb-1.5">Nome do Produto</label>
+                <input type="text" value="Bolo de Chocolate" oninput="markDirty()"
+                  class="w-full border-2 border-stone-200 rounded-xl px-4 py-2.5 font-bold text-stone-900 bg-white transition-all">
+              </div>
+              <!-- Preço de Venda -->
+              <div>
+                <label class="block text-[11px] font-black text-stone-500 uppercase tracking-wider mb-1.5">Preço de Venda</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-3 text-stone-400 font-semibold text-sm">R$</span>
+                  <input type="number" id="sale-price" value="95.00" min="0" step="0.50" oninput="updateCMV(); markDirty()"
+                    class="w-full border-2 border-stone-200 rounded-xl pl-8 pr-4 py-2.5 font-black text-stone-900 bg-white transition-all">
+                </div>
+              </div>
+              <!-- Grupo -->
+              <div>
+                <label class="block text-[11px] font-black text-stone-500 uppercase tracking-wider mb-1.5">Grupo / Categoria</label>
+                <select oninput="markDirty()" class="w-full border-2 border-stone-200 rounded-xl px-4 py-2.5 font-bold text-stone-900 bg-white transition-all">
+                  <option value="encomenda" selected>Encomenda</option>
+                  <option value="pronta-entrega">Pronta Entrega</option>
+                  <option value="pascoa">Páscoa</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Composição card -->
+          <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm overflow-hidden">
+            <div class="px-6 pt-6 pb-4">
+              <h2 class="font-black text-stone-900 text-base flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-amber-500"></i> Composição
+              </h2>
+              <p class="text-[11px] text-stone-400 font-medium mt-0.5">Fichas técnicas e insumos que compõem este produto</p>
+            </div>
+
+            <!-- Composition items -->
+            <div id="comp-list" class="divide-y-2 divide-stone-50">
+
+              <!-- Item 1: Ficha Técnica -->
+              <div class="comp-row flex items-center gap-4 px-6 py-3.5 transition-colors">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                  <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-amber-700"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-bold text-stone-900 text-sm truncate">Massa de Bolo</p>
+                    <p class="text-[10px] text-stone-400 font-medium">Ficha Técnica · R$ 12,00/unid.</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider hidden sm:block">Qtd.</label>
+                  <input type="number" value="1" min="0.01" step="0.5"
+                    class="w-16 border-2 border-stone-200 rounded-lg px-2 py-1 text-center font-bold text-stone-900 text-sm focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="updateCosts(); markDirty()" data-unit-cost="12.00">
+                  <span class="text-[10px] text-stone-400 font-bold">unid.</span>
+                </div>
+                <div class="shrink-0 text-right hidden sm:block">
+                  <p class="text-[10px] font-bold text-stone-400">Custo Linha</p>
+                  <p class="comp-line-cost font-black text-stone-700 text-sm">R$ 12,00</p>
+                </div>
+                <button class="shrink-0 text-red-300 hover:text-red-500 transition-colors" onclick="removeComp(this)">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Item 2: Insumo direto -->
+              <div class="comp-row flex items-center gap-4 px-6 py-3.5 transition-colors">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                  <div class="w-8 h-8 bg-stone-100 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="package" class="w-3.5 h-3.5 text-stone-500"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-bold text-stone-900 text-sm truncate">Cacau em Pó 100%</p>
+                    <p class="text-[10px] text-stone-400 font-medium">Insumo · R$ 8,00/100g</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider hidden sm:block">Qtd.</label>
+                  <input type="number" value="200" min="0" step="10"
+                    class="w-16 border-2 border-stone-200 rounded-lg px-2 py-1 text-center font-bold text-stone-900 text-sm focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="updateCosts(); markDirty()" data-unit-cost="0.08">
+                  <span class="text-[10px] text-stone-400 font-bold">g</span>
+                </div>
+                <div class="shrink-0 text-right hidden sm:block">
+                  <p class="text-[10px] font-bold text-stone-400">Custo Linha</p>
+                  <p class="comp-line-cost font-black text-stone-700 text-sm">R$ 16,00</p>
+                </div>
+                <button class="shrink-0 text-red-300 hover:text-red-500 transition-colors" onclick="removeComp(this)">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Item 3: Ficha Técnica (Cobertura) -->
+              <div class="comp-row flex items-center gap-4 px-6 py-3.5 transition-colors">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                  <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-amber-700"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-bold text-stone-900 text-sm truncate">Ganache de Chocolate</p>
+                    <p class="text-[10px] text-stone-400 font-medium">Ficha Técnica · R$ 5,00/100g</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider hidden sm:block">Qtd.</label>
+                  <input type="number" value="50" min="0" step="5"
+                    class="w-16 border-2 border-stone-200 rounded-lg px-2 py-1 text-center font-bold text-stone-900 text-sm focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="updateCosts(); markDirty()" data-unit-cost="0.05">
+                  <span class="text-[10px] text-stone-400 font-bold">g</span>
+                </div>
+                <div class="shrink-0 text-right hidden sm:block">
+                  <p class="text-[10px] font-bold text-stone-400">Custo Linha</p>
+                  <p class="comp-line-cost font-black text-stone-700 text-sm">R$ 2,50</p>
+                </div>
+                <button class="shrink-0 text-red-300 hover:text-red-500 transition-colors" onclick="removeComp(this)">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Add component bar -->
+            <div class="px-6 py-4 border-t-2 border-stone-100 bg-stone-50/70">
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-stone-400"></i>
+                  <input type="text" id="comp-search" placeholder="Adicionar ficha técnica ou insumo..."
+                    class="w-full bg-white border-2 border-stone-200 rounded-xl pl-9 pr-3 py-2 text-sm font-medium focus:border-amber-400 transition-all"
+                    onfocus="showSearchDropdown()" oninput="filterSearchDropdown(this.value)">
+                  <!-- Dropdown -->
+                  <div id="comp-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl border-2 border-stone-100 shadow-xl overflow-hidden z-20">
+                    <div class="p-1.5">
+                      <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest px-3 py-2">Fichas Técnicas</p>
+                      <button onclick="addComp('Brigadeiro Gourmet','ficha','R$ 3,50/un.',3.50,'un.')" class="w-full text-left px-3 py-2.5 hover:bg-amber-50 rounded-xl transition-colors flex items-center gap-3">
+                        <div class="w-7 h-7 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                          <i data-lucide="clipboard-list" class="w-3 h-3 text-amber-700"></i>
+                        </div>
+                        <div>
+                          <p class="font-bold text-stone-900 text-sm">Brigadeiro Gourmet</p>
+                          <p class="text-[10px] text-stone-400">Ficha Técnica · R$ 3,50/un.</p>
+                        </div>
+                      </button>
+                      <button onclick="addComp('Cobertura de Morango','ficha','R$ 6,00/100g',0.06,'g')" class="w-full text-left px-3 py-2.5 hover:bg-amber-50 rounded-xl transition-colors flex items-center gap-3">
+                        <div class="w-7 h-7 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                          <i data-lucide="clipboard-list" class="w-3 h-3 text-amber-700"></i>
+                        </div>
+                        <div>
+                          <p class="font-bold text-stone-900 text-sm">Cobertura de Morango</p>
+                          <p class="text-[10px] text-stone-400">Ficha Técnica · R$ 6,00/100g</p>
+                        </div>
+                      </button>
+                      <div class="border-t border-stone-100 my-1"></div>
+                      <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest px-3 py-2">Insumos</p>
+                      <button onclick="addComp('Ovos Caipira','insumo','R$ 1,10/un.',1.10,'un.')" class="w-full text-left px-3 py-2.5 hover:bg-amber-50 rounded-xl transition-colors flex items-center gap-3">
+                        <div class="w-7 h-7 bg-stone-100 rounded-xl flex items-center justify-center shrink-0">
+                          <i data-lucide="package" class="w-3 h-3 text-stone-500"></i>
+                        </div>
+                        <div>
+                          <p class="font-bold text-stone-900 text-sm">Ovos Caipira</p>
+                          <p class="text-[10px] text-stone-400">Insumo · R$ 1,10/un.</p>
+                        </div>
+                      </button>
+                      <button onclick="addComp('Manteiga sem sal','insumo','R$ 12,00/500g',0.024,'g')" class="w-full text-left px-3 py-2.5 hover:bg-amber-50 rounded-xl transition-colors flex items-center gap-3">
+                        <div class="w-7 h-7 bg-stone-100 rounded-xl flex items-center justify-center shrink-0">
+                          <i data-lucide="package" class="w-3 h-3 text-stone-500"></i>
+                        </div>
+                        <div>
+                          <p class="font-bold text-stone-900 text-sm">Manteiga sem sal</p>
+                          <p class="text-[10px] text-stone-400">Insumo · R$ 12,00/500g</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: CMV Sticky Panel -->
+        <div class="lg:col-span-1">
+          <div class="bg-stone-900 text-white rounded-[1.5rem] shadow-xl sticky top-24 p-6 space-y-5">
+            <h2 class="font-black text-base flex items-center gap-2">
+              <i data-lucide="percent" class="w-4 h-4 text-amber-400"></i> Indicadores
+            </h2>
+
+            <!-- Custo Total -->
+            <div class="bg-stone-800 rounded-2xl p-4">
+              <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Custo Total</p>
+              <p id="total-cost" class="text-3xl font-black text-white tracking-tight">R$ 30,50</p>
+              <p id="comp-count" class="text-[10px] text-stone-400 font-medium mt-0.5">3 componentes</p>
+            </div>
+
+            <!-- CMV -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">CMV</p>
+                <p id="cmv-pct" class="text-lg font-black text-emerald-400">32%</p>
+              </div>
+              <div class="h-3 bg-stone-700 rounded-full overflow-hidden mb-1">
+                <div id="cmv-bar" class="h-full rounded-full bg-emerald-400 cmv-bar-fill" style="width:32%"></div>
+              </div>
+              <div class="flex justify-between text-[9px] font-bold text-stone-500 mt-1.5">
+                <span>Ótimo &lt;40%</span>
+                <span class="text-amber-500">Atenção &gt;60%</span>
+                <span class="text-red-500">Crítico &gt;100%</span>
+              </div>
+            </div>
+
+            <!-- Badge de Status -->
+            <div id="cmv-badge-block" class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
+              <i data-lucide="check-circle-2" id="cmv-icon" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+              <div>
+                <p id="cmv-label" class="font-black text-emerald-400 text-sm">Precificação Saudável</p>
+                <p id="cmv-desc" class="text-[10px] text-stone-400 font-medium mt-0.5">CMV abaixo de 40% — excelente!</p>
+              </div>
+            </div>
+
+            <!-- Preço sugerido -->
+            <div class="border-t border-stone-700 pt-4">
+              <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Preço Sugerido (40% CMV)</p>
+              <p id="suggested-price" class="text-2xl font-black text-amber-400 tracking-tight">R$ 76,25</p>
+              <p class="text-[10px] text-stone-500 font-medium mt-1">Seu preço atual é <span id="price-vs-suggested" class="text-emerald-400 font-black">R$ 18,75 acima</span></p>
+            </div>
+
+            <!-- Action -->
+            <button onclick="saveAll()" class="w-full bg-amber-600 text-white font-black text-sm py-3 rounded-2xl hover:bg-amber-700 transition-colors shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2">
+              <i data-lucide="save" class="w-4 h-4"></i> Salvar Produto
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- AUTO-SAVE TOAST -->
+  <div id="save-toast" class="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span>Produto salvo com sucesso</span>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    let dirty = false, saveTimer = null;
+
+    function getTotalCost() {
+      let total = 0;
+      document.querySelectorAll('.comp-row').forEach(row => {
+        const qtdInput = row.querySelector('input[type="number"]');
+        const unitCost = parseFloat(qtdInput?.dataset.unitCost || 0);
+        const qtd = parseFloat(qtdInput?.value || 0);
+        total += unitCost * qtd;
+      });
+      return total;
+    }
+
+    function updateCosts() {
+      // Update line costs for each row
+      document.querySelectorAll('.comp-row').forEach(row => {
+        const qtdInput = row.querySelector('input[type="number"]');
+        const unitCost = parseFloat(qtdInput?.dataset.unitCost || 0);
+        const qtd = parseFloat(qtdInput?.value || 0);
+        const lineCostEl = row.querySelector('.comp-line-cost');
+        if (lineCostEl) {
+          const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(unitCost * qtd);
+          lineCostEl.textContent = `R$ ${formatted}`;
+        }
+      });
+      updateCMV();
+    }
+
+    function updateCMV() {
+      const totalCost = getTotalCost();
+      const salePrice = parseFloat(document.getElementById('sale-price').value) || 0;
+      const cmv = salePrice > 0 ? (totalCost / salePrice) * 100 : 0;
+      const count = document.querySelectorAll('.comp-row').length;
+
+      // Update cost display
+      const costFormatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(totalCost);
+      document.getElementById('total-cost').textContent = `R$ ${costFormatted}`;
+      document.getElementById('comp-count').textContent = `${count} componente${count === 1 ? '' : 's'}`;
+
+      // Update CMV
+      document.getElementById('cmv-pct').textContent = `${Math.round(cmv)}%`;
+      document.getElementById('cmv-bar').style.width = `${Math.min(cmv, 100)}%`;
+
+      // Update suggested price (at 40% CMV)
+      const suggested = totalCost / 0.40;
+      const diff = salePrice - suggested;
+      const suggestedFmt = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(suggested);
+      document.getElementById('suggested-price').textContent = `R$ ${suggestedFmt}`;
+      const vsEl = document.getElementById('price-vs-suggested');
+      if (diff >= 0) {
+        const diffFmt = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(diff);
+        vsEl.textContent = `R$ ${diffFmt} acima`;
+        vsEl.className = 'text-emerald-400 font-black';
+      } else {
+        const diffFmt = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(Math.abs(diff));
+        vsEl.textContent = `R$ ${diffFmt} abaixo`;
+        vsEl.className = 'text-red-400 font-black';
+      }
+
+      // Update status badge
+      const badge = document.getElementById('cmv-badge-block');
+      const label = document.getElementById('cmv-label');
+      const desc = document.getElementById('cmv-desc');
+      const icon = document.getElementById('cmv-icon');
+      const cmvPct = document.getElementById('cmv-pct');
+      const cmvBar = document.getElementById('cmv-bar');
+
+      if (cmv < 40) {
+        badge.className = 'bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3';
+        label.className = 'font-black text-emerald-400 text-sm'; label.textContent = 'Precificação Saudável';
+        desc.textContent = 'CMV abaixo de 40% — excelente!';
+        icon.setAttribute('data-lucide', 'check-circle-2'); icon.className = 'w-5 h-5 text-emerald-400 shrink-0';
+        cmvPct.className = 'text-lg font-black text-emerald-400';
+        cmvBar.className = 'h-full rounded-full bg-emerald-400 cmv-bar-fill';
+      } else if (cmv <= 100) {
+        badge.className = 'bg-amber-500/10 border border-amber-400/20 rounded-xl px-4 py-3 flex items-center gap-3';
+        label.className = 'font-black text-amber-400 text-sm'; label.textContent = 'Atenção ao CMV';
+        desc.textContent = `CMV em ${Math.round(cmv)}% — considere ajustar o preço.`;
+        icon.setAttribute('data-lucide', 'alert-circle'); icon.className = 'w-5 h-5 text-amber-400 shrink-0';
+        cmvPct.className = 'text-lg font-black text-amber-400';
+        cmvBar.className = 'h-full rounded-full bg-amber-400 cmv-bar-fill';
+      } else {
+        badge.className = 'bg-red-500/10 border border-red-400/20 rounded-xl px-4 py-3 flex items-center gap-3';
+        label.className = 'font-black text-red-400 text-sm'; label.textContent = '⚠ Prejuízo — Revise o Preço';
+        desc.textContent = `CMV em ${Math.round(cmv)}% — custo maior que o preço de venda!`;
+        icon.setAttribute('data-lucide', 'alert-triangle'); icon.className = 'w-5 h-5 text-red-400 shrink-0';
+        cmvPct.className = 'text-lg font-black text-red-400';
+        cmvBar.className = 'h-full rounded-full bg-red-400 cmv-bar-fill';
+      }
+      lucide.createIcons();
+    }
+
+    function markDirty() {
+      dirty = true;
+      const bar = document.getElementById('status-bar');
+      const txt = document.getElementById('status-text');
+      bar.className = 'hidden md:flex items-center gap-2 text-[11px] font-semibold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-100';
+      txt.textContent = 'Não salvo...';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveAll, 2000);
+    }
+
+    function saveAll() {
+      dirty = false;
+      const bar = document.getElementById('status-bar');
+      const txt = document.getElementById('status-text');
+      const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      bar.className = 'hidden md:flex items-center gap-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100';
+      txt.textContent = `Salvo às ${now}`;
+      const toast = document.getElementById('save-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function removeComp(btn) {
+      btn.closest('.comp-row').remove();
+      document.getElementById('comp-dropdown').classList.add('hidden');
+      updateCosts();
+      markDirty();
+    }
+
+    function addComp(name, type, label, unitCost, unit) {
+      const icon = type === 'ficha' ? 'clipboard-list' : 'package';
+      const iconBg = type === 'ficha' ? 'bg-amber-100' : 'bg-stone-100';
+      const iconCol = type === 'ficha' ? 'text-amber-700' : 'text-stone-500';
+      const defaultQtd = type === 'ficha' ? 1 : 100;
+      const row = document.createElement('div');
+      row.className = 'comp-row anim-slide flex items-center gap-4 px-6 py-3.5 transition-colors border-t-2 border-stone-50';
+      row.innerHTML = `
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div class="w-8 h-8 ${iconBg} rounded-xl flex items-center justify-center shrink-0">
+            <i data-lucide="${icon}" class="w-3.5 h-3.5 ${iconCol}"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-bold text-stone-900 text-sm truncate">${name}</p>
+            <p class="text-[10px] text-stone-400 font-medium">${type === 'ficha' ? 'Ficha Técnica' : 'Insumo'} · ${label}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <input type="number" value="${defaultQtd}" min="0.01" step="1"
+            class="w-16 border-2 border-stone-200 rounded-lg px-2 py-1 text-center font-bold text-stone-900 text-sm focus:border-amber-400 focus:outline-none bg-white transition-all"
+            oninput="updateCosts(); markDirty()" data-unit-cost="${unitCost}">
+          <span class="text-[10px] text-stone-400 font-bold">${unit}</span>
+        </div>
+        <div class="shrink-0 text-right hidden sm:block">
+          <p class="text-[10px] font-bold text-stone-400">Custo Linha</p>
+          <p class="comp-line-cost font-black text-stone-700 text-sm">R$ ${(unitCost * defaultQtd).toFixed(2).replace('.', ',')}</p>
+        </div>
+        <button class="shrink-0 text-red-300 hover:text-red-500 transition-colors" onclick="removeComp(this)">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>`;
+      document.getElementById('comp-list').appendChild(row);
+      document.getElementById('comp-dropdown').classList.add('hidden');
+      document.getElementById('comp-search').value = '';
+      lucide.createIcons();
+      updateCosts();
+      markDirty();
+    }
+
+    function showSearchDropdown() {
+      document.getElementById('comp-dropdown').classList.remove('hidden');
+    }
+
+    function filterSearchDropdown(q) {
+      if (!q) { document.getElementById('comp-dropdown').classList.remove('hidden'); return; }
+      document.querySelectorAll('#comp-dropdown button').forEach(btn => {
+        btn.style.display = btn.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#comp-search') && !e.target.closest('#comp-dropdown')) {
+        document.getElementById('comp-dropdown').classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveAll(); }
+    });
+
+    // Initialize
+    lucide.createIcons();
+    updateCosts();
+    document.getElementById('status-bar').classList.remove('hidden');
+    document.getElementById('status-bar').classList.add('flex');
+    const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('status-text').textContent = `Salvo às ${now}`;
+  </script>
+</body>
+</html>
