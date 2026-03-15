@@ -1,7 +1,7 @@
 # TASK-001: RFC - Modelagem e Migração de Dados Locais
 
 **Épico Pai:** [EPIC-001](../epics/EPIC-001-technical-decisions.md)
-**Status:** `[TODO]`
+**Status:** `[DONE]`
 
 ## Contexto
 O App do Artesão é Standalone e persiste os dados primariamente offline (IndexedDB/LocalStorage). Precisamos definir como o schema de dados será versionado.

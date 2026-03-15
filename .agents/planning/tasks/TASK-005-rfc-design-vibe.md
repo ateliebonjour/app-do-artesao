@@ -1,7 +1,7 @@
 # TASK-005: RFC - "Vibe" e Identidade Visual
 
 **Épico Pai:** [EPIC-002](../epics/EPIC-002-design-definitions.md)
-**Status:** `[TODO]`
+**Status:** `[DONE]`
 
 ## Contexto
 O aplicativo precisa de uma identidade visual ("Vibe") antes de estilizarmos qualquer tela. O aplicativo do artesão será focado na gestão rápida via mobile, mas também uso denso via desktop (tablets/pc) para coisas administrativas. O usuário migrará de planilhas de gestão, e queremos ser tanto agradáveis quanto altamente eficientes. Precisamos discutir e votar (RFC) as opções visuais antes de bater o martelo (ADR).

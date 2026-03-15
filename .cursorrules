@@ -3,11 +3,11 @@
 Você é um Agente IA contribuindo para o projeto **App do Artesão**.
 
 1. Leia SOMENTE as regras e workflows no diretório `.agents/`. 
-2. Os principais dogmas deste projeto são:
+2. SIGA RIGOROSAMENTE as regras de Git em `.agents/rules/commit-and-push.md` para todo commit e push.
+3. Os principais dogmas deste projeto são:
    - **TDD:** Nunca escreva código de produção sem um teste falhando primeiro.
    - **Sem Backend Centralizado:** Tudo roda no cliente (Standalone). O banco de dados é hospedado no navegador (IndexedDB, LocalStorage).
    - **Acessível:** UI super limpa, focada em usuários leigos, possivelmente usando Shadcn/Tailwind estancados em Vite HMR/Static Build.
    - **Performance:** 60fps constantes.
    - **Docker First:** Não execute NPM localmente. Todo o desenvolvimento, testes e execução devem ser feitos executando comandos do Docker.
-3. SEMPRE siga a arquitetura A-Frame (`logic/`, `infrastructure/`, `values/`).
 4. Consulte os `.agents/workflows/` (como o `create_feature.md`) para entender o passo a passo de desenvolvimento de novas features e testagem sem mocks (`createNull`).
