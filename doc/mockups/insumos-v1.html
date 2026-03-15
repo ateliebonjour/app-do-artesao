@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insumos – Ateliê Bonjour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f' },
+            stone: { 50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 500: '#78716c', 800: '#292524', 900: '#1c1917' },
+            terracotta: { 50: '#fef5f2', 100: '#fcebe5', 200: '#fad1c2', 500: '#c05621', 600: '#9c4221', 700: '#7b341e' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+
+    /* === DIRTY STATE === */
+    .row-dirty {
+      background-color: #fffbeb !important;
+      border-left: 3px solid #f59e0b !important;
+    }
+    .row-dirty input {
+      border-color: #fbbf24 !important;
+      background-color: #fffce8 !important;
+    }
+    .cell-dirty-indicator {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #f59e0b;
+      border-radius: 50%;
+      margin-left: 6px;
+      vertical-align: middle;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* === FOCUS DE CÉLULA (NAVEGAÇÃO POR TECLADO) === */
+    .cell-focused input {
+      border-color: #d97706 !important;
+      box-shadow: 0 0 0 3px rgba(217,119,6,0.15) !important;
+      outline: none;
+    }
+    input:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.2);
+      outline: none;
+    }
+    select:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.2);
+      outline: none;
+    }
+
+    /* === AUTO-SAVE TOAST === */
+    #save-toast {
+      transition: all 0.3s ease;
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    #save-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* === STATUS BAR === */
+    #status-bar {
+      transition: all 0.4s ease;
+    }
+
+    /* === DELETE UNDO === */
+    .undo-row {
+      background-color: #fef5f2;
+      border-left: 3px solid #c05621;
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .row-enter {
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateX(-8px); }
+    }
+    .row-exit {
+      animation: fadeOut 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-[#fcfaf8] min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-stone-900 border-r border-stone-800 flex flex-col hidden md:flex fixed h-full z-30">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-stone-800">
+      <div class="w-8 h-8 bg-amber-600 rounded-xl flex items-center justify-center text-white font-bold mr-3 shadow-md shadow-amber-600/30">
+        <i data-lucide="cookie" class="w-5 h-5"></i>
+      </div>
+      <span class="font-extrabold text-white text-lg tracking-tight">Ateliê Bonjour</span>
+    </div>
+    <!-- Nav -->
+    <nav class="flex-1 p-4 space-y-1 text-sm">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-3 pl-2">Cadastros</p>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-terracotta-500/10 text-terracotta-500 rounded-xl font-bold">
+        <i data-lucide="package" class="w-4 h-4"></i> Insumos
+      </a>
+      <a href="fichas-tecnicas-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Fichas Técnicas
+      </a>
+      <a href="produtos-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Produtos
+      </a>
+      <div class="mt-4 pt-4 border-t border-stone-800">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-3 pl-2">Análises</p>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+          <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Visão Geral
+        </a>
+      </div>
+    </nav>
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="p-4 border-t border-stone-800">
+      <div class="bg-stone-800 rounded-xl p-3 text-[10px] text-stone-400 font-medium space-y-1">
+        <p class="text-stone-300 font-bold uppercase tracking-wider mb-2">Atalhos de Teclado</p>
+        <div class="flex justify-between"><span>Navegar</span><span class="text-stone-300">Tab / ↑↓←→</span></div>
+        <div class="flex justify-between"><span>Editar</span><span class="text-stone-300">Enter / F2</span></div>
+        <div class="flex justify-between"><span>Cancelar</span><span class="text-stone-300">Esc</span></div>
+        <div class="flex justify-between"><span>Salvar Tudo</span><span class="text-stone-300">Ctrl+S</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="md:ml-64 flex-1 flex flex-col pb-8">
+
+    <!-- TOP HEADER -->
+    <header class="bg-white border-b border-amber-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] sticky top-0 z-20 px-4 md:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div>
+          <h1 class="text-xl font-extrabold text-stone-900 leading-tight tracking-tight">Insumos</h1>
+          <p class="text-[11px] text-stone-400 font-medium">Matérias-primas e ingredientes</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Status Bar (auto-save) -->
+        <div id="status-bar" class="hidden md:flex items-center gap-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+          <span id="status-text">Todas as alterações salvas</span>
+        </div>
+        <!-- Dirty State Button -->
+        <button id="save-all-btn" onclick="saveAll()" class="hidden bg-amber-600 text-white text-sm px-4 py-2 rounded-xl font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:-translate-y-px transition-all flex items-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i> Salvar Tudo
+        </button>
+        <!-- Add Button -->
+        <button onclick="addRow()" class="bg-amber-600 text-white text-sm px-4 py-2 rounded-xl font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:-translate-y-px transition-all flex items-center gap-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Adicionar Insumo</span>
+          <span class="sm:hidden">Adicionar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="p-4 md:p-8 max-w-6xl mx-auto w-full">
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
+          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-amber-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
+            <i data-lucide="package" class="w-3.5 h-3.5 text-amber-500"></i> Total de Insumos
+          </p>
+          <div class="flex items-end gap-3 relative z-10">
+            <p class="text-3xl font-black text-stone-900 tracking-tight">12</p>
+            <span class="text-[10px] font-extrabold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-lg mb-1.5">itens</span>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
+          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
+            <i data-lucide="trending-down" class="w-3.5 h-3.5 text-emerald-500"></i> Estoque Baixo
+          </p>
+          <div class="flex items-end gap-3 relative z-10">
+            <p class="text-3xl font-black text-stone-900 tracking-tight">3</p>
+            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg mb-1.5 border border-amber-100/50">atenção</span>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-colors cursor-pointer">
+          <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-terracotta-50 to-white -mr-4 -mt-4 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2 flex items-center gap-2 relative z-10">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-terracotta-500"></i> Última Atualização
+          </p>
+          <div class="flex items-end gap-3 relative z-10">
+            <p class="text-2xl font-black text-stone-900 tracking-tight">Hoje</p>
+            <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg mb-1.5 border border-emerald-100">Sincronizado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search + Filter Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
+        <div class="relative w-full max-w-sm">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-stone-400"></i>
+          <input type="text" placeholder="Buscar insumo..." id="search-input" oninput="filterRows(this.value)"
+            class="w-full bg-stone-50 border-none rounded-xl pl-9 pr-3 py-2 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all">
+        </div>
+        <div class="flex items-center gap-2 text-xs font-semibold text-stone-500">
+          <span class="hidden sm:inline">Filtrar por unidade:</span>
+          <button onclick="filterUnit('todos')" class="px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors" id="filter-todos">Todos</button>
+          <button onclick="filterUnit('kg')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-kg">kg</button>
+          <button onclick="filterUnit('ml')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-ml">ml / L</button>
+          <button onclick="filterUnit('un')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors" id="filter-un">un</button>
+        </div>
+      </div>
+
+      <!-- TABLE: Desktop Header (Congelado) + Mobile Cards -->
+      <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm overflow-hidden text-sm" id="table-container">
+
+        <!-- Desktop Header (oculto no mobile) -->
+        <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-stone-50 border-b-2 border-stone-100 font-bold uppercase tracking-wider text-[11px] text-stone-500 sticky top-16 z-10">
+          <div class="col-span-4">Nome do Insumo</div>
+          <div class="col-span-2 text-center">Qtd. Compra</div>
+          <div class="col-span-2 text-center">Unidade</div>
+          <div class="col-span-2 text-center">Preço de Custo</div>
+          <div class="col-span-1 text-right">Preço Unit.</div>
+          <div class="col-span-1 text-center">Ação</div>
+        </div>
+
+        <!-- Rows (Body) -->
+        <div class="divide-y-2 divide-stone-50 p-4 md:p-0 space-y-4 md:space-y-0" id="rows-container">
+
+          <!-- ROW EXAMPLE 1: Normal (saved) -->
+          <div class="row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none"
+               data-saved="true" data-unit="kg">
+            <div class="col-span-1 md:col-span-4 flex justify-between md:justify-start items-center">
+              <div class="flex items-center gap-2">
+                <i data-lucide="wheat" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                <span class="field-name font-bold text-base md:text-sm text-stone-900" contenteditable="false" onclick="makeEditable(this)">Farinha de Trigo</span>
+              </div>
+              <span class="md:hidden text-[10px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-lg uppercase">kg</span>
+            </div>
+            <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Compra</span>
+                <input type="number" value="5" min="0" step="0.01"
+                  class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Unidade</span>
+                <select class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this); calcUnitPrice(this)">
+                  <option value="kg" selected>kg</option>
+                  <option value="g">g</option>
+                  <option value="ml">ml</option>
+                  <option value="L">L</option>
+                  <option value="m">m</option>
+                  <option value="un">un</option>
+                </select>
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço de Custo</span>
+                <div class="relative w-full md:w-24">
+                  <span class="absolute left-2 top-2 text-stone-400 font-semibold text-xs">R$</span>
+                  <input type="number" value="18.00" min="0" step="0.01"
+                    class="w-full border-2 border-stone-200 rounded-lg pl-7 pr-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço Unit.</span>
+                <span class="unit-price font-black text-emerald-600 text-base md:text-sm">R$ 3,60/kg</span>
+              </div>
+            </div>
+            <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+              <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais Opções</button>
+              <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="deleteRow(this)">⨯</button>
+            </div>
+          </div>
+
+          <!-- ROW EXAMPLE 2: DIRTY STATE (alterado, não salvo) -->
+          <div class="row row-dirty grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none"
+               data-saved="false" data-unit="L">
+            <div class="col-span-1 md:col-span-4 flex justify-between md:justify-start items-center">
+              <div class="flex items-center gap-2">
+                <i data-lucide="droplets" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                <span class="field-name font-bold text-base md:text-sm text-stone-900">Leite Integral</span>
+                <!-- Dirty Indicator -->
+                <span class="dirty-indicator cell-dirty-indicator" title="Alterações não salvas"></span>
+              </div>
+              <span class="md:hidden text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg uppercase">Não salvo</span>
+            </div>
+            <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Compra</span>
+                <input type="number" value="12" min="0" step="0.01"
+                  class="w-full md:w-20 border-2 border-amber-300 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+                  onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Unidade</span>
+                <select class="w-full md:w-20 border-2 border-amber-300 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+                  onchange="markDirty(this); calcUnitPrice(this)">
+                  <option value="kg">kg</option>
+                  <option value="g">g</option>
+                  <option value="ml">ml</option>
+                  <option value="L" selected>L</option>
+                  <option value="m">m</option>
+                  <option value="un">un</option>
+                </select>
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço de Custo</span>
+                <div class="relative w-full md:w-24">
+                  <span class="absolute left-2 top-2 text-stone-400 font-semibold text-xs">R$</span>
+                  <input type="number" value="9.50" min="0" step="0.01"
+                    class="w-full border-2 border-amber-300 rounded-lg pl-7 pr-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+                    onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço Unit.</span>
+                <span class="unit-price font-black text-emerald-600 text-base md:text-sm">R$ 0,79/L</span>
+              </div>
+            </div>
+            <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+              <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais Opções</button>
+              <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="deleteRow(this)">⨯</button>
+            </div>
+          </div>
+
+          <!-- ROW EXAMPLE 3: Normal -->
+          <div class="row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none"
+               data-saved="true" data-unit="kg">
+            <div class="col-span-1 md:col-span-4 flex justify-between md:justify-start items-center">
+              <div class="flex items-center gap-2">
+                <i data-lucide="zap" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                <span class="field-name font-bold text-base md:text-sm text-stone-900">Açúcar Refinado</span>
+              </div>
+              <span class="md:hidden text-[10px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-lg uppercase">kg</span>
+            </div>
+            <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Compra</span>
+                <input type="number" value="2" min="0" step="0.01"
+                  class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Unidade</span>
+                <select class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this); calcUnitPrice(this)">
+                  <option value="kg" selected>kg</option>
+                  <option value="g">g</option>
+                  <option value="ml">ml</option>
+                  <option value="L">L</option>
+                  <option value="m">m</option>
+                  <option value="un">un</option>
+                </select>
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço de Custo</span>
+                <div class="relative w-full md:w-24">
+                  <span class="absolute left-2 top-2 text-stone-400 font-semibold text-xs">R$</span>
+                  <input type="number" value="8.00" min="0" step="0.01"
+                    class="w-full border-2 border-stone-200 rounded-lg pl-7 pr-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço Unit.</span>
+                <span class="unit-price font-black text-emerald-600 text-base md:text-sm">R$ 4,00/kg</span>
+              </div>
+            </div>
+            <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+              <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais Opções</button>
+              <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="deleteRow(this)">⨯</button>
+            </div>
+          </div>
+
+          <!-- ROW EXAMPLE 4: Normal (vinculado - exclusão bloqueada) -->
+          <div class="row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none"
+               data-saved="true" data-unit="ml" data-linked="true">
+            <div class="col-span-1 md:col-span-4 flex justify-between md:justify-start items-center">
+              <div class="flex items-center gap-2">
+                <i data-lucide="flask-conical" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                <span class="field-name font-bold text-base md:text-sm text-stone-900">Extrato de Baunilha</span>
+                <span class="hidden md:inline-flex text-[9px] font-bold text-terracotta-500 bg-terracotta-50 px-1.5 py-0.5 rounded-lg uppercase border border-terracotta-100" title="Em uso em fichas técnicas">Em uso</span>
+              </div>
+              <span class="md:hidden text-[10px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-lg uppercase">ml</span>
+            </div>
+            <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Compra</span>
+                <input type="number" value="500" min="0" step="1"
+                  class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Unidade</span>
+                <select class="w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="markDirty(this); calcUnitPrice(this)">
+                  <option value="kg">kg</option>
+                  <option value="g">g</option>
+                  <option value="ml" selected>ml</option>
+                  <option value="L">L</option>
+                  <option value="m">m</option>
+                  <option value="un">un</option>
+                </select>
+              </div>
+              <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço de Custo</span>
+                <div class="relative w-full md:w-24">
+                  <span class="absolute left-2 top-2 text-stone-400 font-semibold text-xs">R$</span>
+                  <input type="number" value="25.00" min="0" step="0.01"
+                    class="w-full border-2 border-stone-200 rounded-lg pl-7 pr-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    onchange="markDirty(this)" oninput="calcUnitPrice(this)">
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço Unit.</span>
+                <span class="unit-price font-black text-emerald-600 text-base md:text-sm">R$ 0,05/ml</span>
+              </div>
+            </div>
+            <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+              <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais Opções</button>
+              <!-- Disabled delete (linked) -->
+              <button class="hidden md:inline-block text-stone-300 font-bold px-2 py-1 bg-stone-50 rounded-lg text-xs cursor-not-allowed" title="Insumo em uso (Massa de Bolo Branca). Impossível excluir." disabled>⨯</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer: Add Row Ghost -->
+        <div onclick="addRow()" class="px-6 py-4 border-t-2 border-stone-100 text-xs text-amber-600 font-black cursor-pointer hover:bg-amber-50/50 tracking-wide uppercase transition-colors text-center md:text-left flex items-center gap-2 justify-center md:justify-start">
+          <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Nova Linha
+        </div>
+      </div>
+
+      <!-- Dirty State Legend -->
+      <div class="mt-4 flex items-center gap-4 text-xs text-stone-400 font-medium">
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-sm bg-amber-100 border border-amber-300 inline-block"></span>
+          <span>Alterações não salvas</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-sm bg-white border border-stone-200 inline-block"></span>
+          <span>Salvo</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-sm bg-stone-100 border border-stone-200 inline-block"></span>
+          <span>Em uso (protegido)</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- AUTO-SAVE TOAST (bottom-right) -->
+  <div id="save-toast" class="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span>Todas as alterações foram salvas</span>
+  </div>
+
+  <!-- UNDO TOAST -->
+  <div id="undo-toast" class="fixed bottom-6 left-6 z-50 hidden bg-stone-900 text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+    <span id="undo-text">Insumo removido.</span>
+    <button onclick="undoDelete()" class="text-amber-400 font-black hover:text-amber-300 transition-colors">Desfazer</button>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    let saveTimer = null;
+    let dirtyRows = new Set();
+    let deletedRow = null;
+    let undoTimer = null;
+
+    // === DIRTY STATE ===
+    function markDirty(input) {
+      const row = input.closest('.row');
+      if (!row) return;
+      row.classList.add('row-dirty');
+      row.dataset.saved = 'false';
+      // Add indicator if not present
+      const nameEl = row.querySelector('.field-name');
+      if (nameEl && !row.querySelector('.dirty-indicator')) {
+        const dot = document.createElement('span');
+        dot.className = 'dirty-indicator cell-dirty-indicator';
+        dot.title = 'Alterações não salvas';
+        nameEl.parentNode.insertBefore(dot, nameEl.nextSibling);
+      }
+      dirtyRows.add(row);
+      updateStatusBar(true);
+
+      // Schedule auto-save (debounce 1.5s)
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => autoSave(row), 1500);
+    }
+
+    function autoSave(row) {
+      // Simulate save
+      row.classList.remove('row-dirty');
+      row.dataset.saved = 'true';
+      const indicator = row.querySelector('.dirty-indicator');
+      if (indicator) indicator.remove();
+      // Reset input styling
+      row.querySelectorAll('input, select').forEach(el => {
+        el.classList.remove('border-amber-300', 'bg-amber-50');
+        el.classList.add('border-stone-200', 'bg-white');
+      });
+      dirtyRows.delete(row);
+      if (dirtyRows.size === 0) {
+        updateStatusBar(false);
+        showSaveToast();
+      }
+    }
+
+    function saveAll() {
+      dirtyRows.forEach(row => autoSave(row));
+      document.getElementById('save-all-btn').classList.add('hidden');
+    }
+
+    function updateStatusBar(isDirty) {
+      const status = document.getElementById('status-bar');
+      const saveBtn = document.getElementById('save-all-btn');
+      const text = document.getElementById('status-text');
+      if (isDirty) {
+        status.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-100');
+        status.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-100');
+        text.textContent = `${dirtyRows.size} alteração(ões) pendente(s)...`;
+        saveBtn.classList.remove('hidden');
+        saveBtn.classList.add('flex');
+      } else {
+        status.classList.remove('bg-amber-50', 'text-amber-700', 'border-amber-100');
+        status.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-100');
+        text.textContent = 'Todas as alterações salvas';
+        saveBtn.classList.add('hidden');
+        saveBtn.classList.remove('flex');
+      }
+    }
+
+    function showSaveToast() {
+      const toast = document.getElementById('save-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // === CALC UNIT PRICE ===
+    function calcUnitPrice(el) {
+      const row = el.closest('.row');
+      if (!row) return;
+      const qtd = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+      const unit = row.querySelector('select').value;
+      const priceInput = row.querySelectorAll('input[type="number"]')[1];
+      const price = parseFloat(priceInput ? priceInput.value : 0) || 0;
+      const unitPriceEl = row.querySelector('.unit-price');
+      if (!unitPriceEl || qtd === 0) return;
+      const unitPrice = price / qtd;
+      const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(unitPrice);
+      unitPriceEl.textContent = `R$ ${formatted}/${unit}`;
+    }
+
+    // === ADD ROW ===
+    function addRow() {
+      const container = document.getElementById('rows-container');
+      const row = document.createElement('div');
+      row.className = 'row row-enter row-dirty grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none';
+      row.dataset.saved = 'false';
+      row.innerHTML = `
+        <div class="col-span-1 md:col-span-4 flex justify-between md:justify-start items-center">
+          <div class="flex items-center gap-2">
+            <i data-lucide="circle-dot" class="w-4 h-4 text-stone-300 shrink-0"></i>
+            <input type="text" placeholder="Nome do insumo..." autofocus
+              class="field-name-input font-bold text-base md:text-sm text-stone-900 border-b-2 border-amber-400 bg-transparent focus:outline-none w-full placeholder:text-stone-300"
+              onchange="markDirty(this)" oninput="markDirty(this)">
+            <span class="dirty-indicator cell-dirty-indicator" title="Novo item não salvo"></span>
+          </div>
+          <span class="md:hidden text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg uppercase">Novo</span>
+        </div>
+        <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Compra</span>
+            <input type="number" value="" placeholder="0" min="0" step="0.01"
+              class="w-full md:w-20 border-2 border-amber-300 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+              oninput="calcUnitPrice(this); markDirty(this)">
+          </div>
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Unidade</span>
+            <select class="w-full md:w-20 border-2 border-amber-300 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+              onchange="markDirty(this); calcUnitPrice(this)">
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="ml">ml</option>
+              <option value="L">L</option>
+              <option value="m">m</option>
+              <option value="un">un</option>
+            </select>
+          </div>
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço de Custo</span>
+            <div class="relative w-full md:w-24">
+              <span class="absolute left-2 top-2 text-stone-400 font-semibold text-xs">R$</span>
+              <input type="number" value="" placeholder="0,00" min="0" step="0.01"
+                class="w-full border-2 border-amber-300 rounded-lg pl-7 pr-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-amber-50 transition-all"
+                oninput="calcUnitPrice(this); markDirty(this)">
+            </div>
+          </div>
+          <div class="col-span-1 md:col-span-1 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Preço Unit.</span>
+            <span class="unit-price font-black text-stone-300 text-base md:text-sm">—</span>
+          </div>
+        </div>
+        <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+          <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais Opções</button>
+          <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="deleteRow(this)">⨯</button>
+        </div>`;
+      container.appendChild(row);
+      dirtyRows.add(row);
+      updateStatusBar(true);
+      lucide.createIcons();
+      row.querySelector('input[type="text"], .field-name-input')?.focus();
+    }
+
+    // === DELETE ROW ===
+    function deleteRow(btn) {
+      const row = btn.closest('.row');
+      if (row.dataset.linked === 'true') {
+        alert('Este insumo está em uso em uma Ficha Técnica. Impossível excluir.');
+        return;
+      }
+      deletedRow = { element: row, parent: row.parentNode, next: row.nextSibling };
+      const name = row.querySelector('.field-name, .field-name-input')?.textContent || 'Insumo';
+      row.classList.add('row-exit');
+      setTimeout(() => {
+        row.remove();
+        dirtyRows.delete(row);
+      }, 300);
+
+      // Show undo toast
+      document.getElementById('undo-text').textContent = `"${name}" removido.`;
+      const undoToast = document.getElementById('undo-toast');
+      undoToast.classList.remove('hidden');
+      undoToast.classList.add('flex');
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => {
+        undoToast.classList.add('hidden');
+        undoToast.classList.remove('flex');
+        deletedRow = null;
+      }, 5000);
+    }
+
+    function undoDelete() {
+      if (!deletedRow) return;
+      const { element, parent, next } = deletedRow;
+      element.classList.remove('row-exit');
+      element.style.opacity = '1';
+      element.style.transform = 'none';
+      parent.insertBefore(element, next);
+      deletedRow = null;
+      document.getElementById('undo-toast').classList.add('hidden');
+      document.getElementById('undo-toast').classList.remove('flex');
+      clearTimeout(undoTimer);
+    }
+
+    // === SEARCH/FILTER ===
+    function filterRows(query) {
+      document.querySelectorAll('.row').forEach(row => {
+        const name = row.querySelector('.field-name, .field-name-input')?.textContent?.toLowerCase() || '';
+        row.style.display = name.includes(query.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    function filterUnit(unit) {
+      document.querySelectorAll('[id^="filter-"]').forEach(b => {
+        b.className = 'px-3 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors text-xs font-semibold text-stone-500';
+      });
+      document.getElementById('filter-' + unit).className = 'px-3 py-1.5 bg-stone-900 text-white rounded-lg transition-colors text-xs font-semibold';
+      document.querySelectorAll('.row').forEach(row => {
+        if (unit === 'todos') { row.style.display = ''; return; }
+        const rowUnit = row.dataset.unit || '';
+        row.style.display = (rowUnit === unit || (unit === 'ml' && (rowUnit === 'ml' || rowUnit === 'L'))) ? '' : 'none';
+      });
+    }
+
+    // === CTRL+S ===
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveAll();
+      }
+    });
+
+    // Initialize
+    lucide.createIcons();
+    // Show status bar initially (clean state)
+    updateStatusBar(false);
+    document.getElementById('status-bar').classList.remove('hidden');
+    document.getElementById('status-bar').classList.add('flex');
+  </script>
+</body>
+</html>

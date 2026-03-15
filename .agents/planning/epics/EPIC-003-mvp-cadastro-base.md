@@ -23,13 +23,13 @@ A premissa principal desse épico é utilizar e respeitar as bases técnicas já
 - [x] [[TASK-008] Especificação por Exemplo: Regras e Atributos para Insumos, Fichas Técnicas e Produtos](../tasks/TASK-008-domain-definition.md)
 
 ### Pipeline da Entidade: Insumos
-- [ ] [[TASK-009] Design UX: Mockup e Interface de Insumos](../tasks/TASK-009-design-insumos.md)
+- [x] [[TASK-009] Design UX: Mockup e Interface de Insumos](../tasks/TASK-009-design-insumos.md) — `doc/mockups/insumos-v1.html` ✅
 - [ ] [[TASK-010] Implementação: Módulo de Cadastros de Insumos](../tasks/TASK-010-feature-insumos.md)
 
 ### Pipeline da Entidade: Fichas Técnicas 
-- [ ] [[TASK-011] Design UX: Mockup e Interface das Fichas Técnicas](../tasks/TASK-011-design-fichas-tecnicas.md)
+- [x] [[TASK-011] Design UX: Mockup e Interface das Fichas Técnicas](../tasks/TASK-011-design-fichas-tecnicas.md) — `doc/mockups/fichas-tecnicas-v1.html` ✅
 - [ ] [[TASK-012] Implementação: Módulo de Cadastros de Fichas Técnicas](../tasks/TASK-012-feature-fichas-tecnicas.md)
 
 ### Pipeline da Entidade: Produtos
-- [ ] [[TASK-013] Design UX: Mockup e Interface de Produtos](../tasks/TASK-013-design-produtos.md)
+- [x] [[TASK-013] Design UX: Mockup e Interface de Produtos](../tasks/TASK-013-design-produtos.md) — `doc/mockups/produtos-v1.html` ✅
 - [ ] [[TASK-014] Implementação: Módulo de Cadastros de Produtos](../tasks/TASK-014-feature-produtos.md)

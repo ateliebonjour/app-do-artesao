@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fichas Técnicas – Ateliê Bonjour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f' },
+            stone: { 50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 500: '#78716c', 800: '#292524', 900: '#1c1917' },
+            terracotta: { 50: '#fef5f2', 100: '#fcebe5', 200: '#fad1c2', 500: '#c05621', 600: '#9c4221', 700: '#7b341e' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes highlight { 0% { background-color: #fef9c3; } 100% { background-color: transparent; } }
+    .row-dirty { background-color: #fffbeb !important; border-left: 3px solid #f59e0b !important; }
+    .row-dirty input, .row-dirty select { border-color: #fbbf24 !important; background-color: #fffce8 !important; }
+    .cell-dirty-indicator { display: inline-block; width: 6px; height: 6px; background: #f59e0b; border-radius: 50%; margin-left: 6px; vertical-align: middle; animation: pulse 1.5s ease-in-out infinite; }
+    .comp-row { animation: slideIn 0.25s ease-out; }
+    .cost-highlight { animation: highlight 1s ease-out; }
+    input:focus, select:focus { border-color: #fbbf24 !important; box-shadow: 0 0 0 3px rgba(251,191,36,0.2) !important; outline: none; }
+    #save-toast { transition: all 0.3s ease; transform: translateY(100%); opacity: 0; }
+    #save-toast.show { transform: translateY(0); opacity: 1; }
+    .search-dropdown { display: none; }
+    .search-dropdown.open { display: block; }
+
+    /* === NESTED LEVELS === */
+    .comp-row[data-type="ficha"] .type-badge { background-color: #fcebe5; color: #9c4221; border-color: #fad1c2; }
+    .comp-row[data-type="insumo"] .type-badge { background-color: #f5f5f4; color: #78716c; border-color: #e7e5e4; }
+  </style>
+</head>
+<body class="bg-[#fcfaf8] min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-stone-900 border-r border-stone-800 flex-col hidden md:flex fixed h-full z-30">
+    <div class="h-16 flex items-center px-6 border-b border-stone-800">
+      <div class="w-8 h-8 bg-amber-600 rounded-xl flex items-center justify-center text-white font-bold mr-3 shadow-md shadow-amber-600/30">
+        <i data-lucide="cookie" class="w-5 h-5"></i>
+      </div>
+      <span class="font-extrabold text-white text-lg tracking-tight">Ateliê Bonjour</span>
+    </div>
+    <nav class="flex-1 p-4 space-y-1 text-sm">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-3 pl-2">Cadastros</p>
+      <a href="insumos-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="package" class="w-4 h-4"></i> Insumos
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-terracotta-500/10 text-terracotta-500 rounded-xl font-bold">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Fichas Técnicas
+      </a>
+      <a href="produtos-v1.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 text-stone-300 hover:text-white rounded-xl font-semibold transition-colors">
+        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Produtos
+      </a>
+    </nav>
+    <div class="p-4 border-t border-stone-800">
+      <div class="bg-stone-800 rounded-xl p-3 text-[10px] text-stone-400 font-medium space-y-1">
+        <p class="text-stone-300 font-bold uppercase tracking-wider mb-2">Atalhos</p>
+        <div class="flex justify-between"><span>Navegar</span><span class="text-stone-300">Tab / ↑↓</span></div>
+        <div class="flex justify-between"><span>Editar</span><span class="text-stone-300">Enter / F2</span></div>
+        <div class="flex justify-between"><span>Salvar Tudo</span><span class="text-stone-300">Ctrl+S</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="md:ml-64 flex-1 flex flex-col pb-40">
+
+    <!-- TOP HEADER -->
+    <header class="bg-white border-b border-amber-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] sticky top-0 z-20 px-4 md:px-8 h-16 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-extrabold text-stone-900 leading-tight tracking-tight">Fichas Técnicas</h1>
+        <p class="text-[11px] text-stone-400 font-medium">Composições e receitas com cálculo de custo</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="status-bar" class="hidden md:flex items-center gap-2 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+          <span id="status-text">Salvo</span>
+        </div>
+        <button onclick="newFicha()" class="bg-amber-600 text-white text-sm px-4 py-2 rounded-xl font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:-translate-y-px transition-all flex items-center gap-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Nova Ficha</span>
+          <span class="sm:hidden">Nova</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="p-4 md:p-8 max-w-6xl mx-auto w-full">
+
+      <!-- Tab: Lista de Fichas vs. Edição -->
+      <div class="flex gap-3 mb-6">
+        <div class="bg-stone-100 p-1 rounded-xl flex text-sm font-semibold border border-stone-200/50">
+          <button onclick="switchView('lista')" id="tab-lista" class="px-5 py-1.5 bg-white text-stone-900 rounded-lg shadow-sm border border-stone-200/50">Lista</button>
+          <button onclick="switchView('editor')" id="tab-editor" class="px-5 py-1.5 text-stone-500 hover:text-stone-700 transition-colors">Editor</button>
+        </div>
+        <div class="relative w-full max-w-sm md:ml-auto">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-stone-400"></i>
+          <input type="text" placeholder="Buscar fichas..." class="w-full bg-stone-50 border-none rounded-xl pl-9 pr-3 py-2 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all">
+        </div>
+      </div>
+
+      <!-- VIEW: LISTA DE FICHAS -->
+      <div id="view-lista">
+        <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm overflow-hidden text-sm">
+          <!-- Header (desktop) -->
+          <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-stone-50 border-b-2 border-stone-100 font-bold uppercase tracking-wider text-[11px] text-stone-500">
+            <div class="col-span-5">Nome da Ficha</div>
+            <div class="col-span-2 text-center">Rendimento</div>
+            <div class="col-span-2 text-center">Componentes</div>
+            <div class="col-span-2 text-right">Custo Total</div>
+            <div class="col-span-1 text-center">Ação</div>
+          </div>
+
+          <!-- Ficha rows -->
+          <div class="divide-y-2 divide-stone-50 p-4 md:p-0 space-y-4 md:space-y-0">
+
+            <!-- FICHA 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-4 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none cursor-pointer" onclick="switchView('editor')">
+              <div class="col-span-1 md:col-span-5 flex items-center gap-3">
+                <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 text-amber-700"></i>
+                </div>
+                <div>
+                  <p class="font-extrabold text-stone-900">Massa de Bolo Branca</p>
+                  <p class="text-[11px] text-stone-400 font-medium">Criada em 10/03/2026</p>
+                </div>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Rendimento</span>
+                  <span class="font-bold text-stone-700">2 kg</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Componentes</span>
+                  <span class="font-bold text-stone-700">4 itens</span>
+                </div>
+                <div class="col-span-2 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Custo Total</span>
+                  <div>
+                    <p class="font-black text-emerald-600 text-base md:text-sm">R$ 8,00</p>
+                    <p class="text-[10px] text-stone-400 font-semibold">R$ 4,00 / kg</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Editar</button>
+                <button class="hidden md:inline-flex items-center gap-1 text-amber-600 hover:text-amber-800 font-bold text-xs px-2 py-1 hover:bg-amber-50 rounded-lg transition-colors" onclick="event.stopPropagation(); switchView('editor')">
+                  <i data-lucide="pencil" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- FICHA 2 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-4 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none cursor-pointer">
+              <div class="col-span-1 md:col-span-5 flex items-center gap-3">
+                <div class="w-9 h-9 bg-terracotta-50 rounded-xl flex items-center justify-center shrink-0">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 text-terracotta-500"></i>
+                </div>
+                <div>
+                  <p class="font-extrabold text-stone-900">Cobertura de Chocolate</p>
+                  <p class="text-[11px] text-stone-400 font-medium">Criada em 12/03/2026</p>
+                </div>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Rendimento</span>
+                  <span class="font-bold text-stone-700">500 g</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Componentes</span>
+                  <span class="font-bold text-stone-700">3 itens</span>
+                </div>
+                <div class="col-span-2 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Custo Total</span>
+                  <div>
+                    <p class="font-black text-emerald-600 text-base md:text-sm">R$ 12,50</p>
+                    <p class="text-[10px] text-stone-400 font-semibold">R$ 25,00 / kg</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Editar</button>
+                <button class="hidden md:inline-flex items-center gap-1 text-amber-600 hover:text-amber-800 font-bold text-xs px-2 py-1 hover:bg-amber-50 rounded-lg transition-colors">
+                  <i data-lucide="pencil" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div onclick="newFicha()" class="px-6 py-4 border-t-2 border-stone-100 text-xs text-amber-600 font-black cursor-pointer hover:bg-amber-50/50 tracking-wide uppercase transition-colors flex items-center gap-2 justify-center md:justify-start">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nova Ficha Técnica
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: EDITOR DE FICHA -->
+      <div id="view-editor" class="hidden">
+
+        <!-- Cabeçalho da Ficha (Header Editável) -->
+        <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm p-6 mb-6">
+          <div class="flex flex-col md:flex-row md:items-start gap-6">
+            <div class="flex-1">
+              <label class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-2 block">Nome da Ficha</label>
+              <input type="text" value="Massa de Bolo Branca" id="ficha-nome"
+                class="text-2xl font-extrabold text-stone-900 tracking-tight border-b-2 border-stone-200 focus:border-amber-400 focus:outline-none w-full bg-transparent pb-1 transition-all"
+                oninput="markDirtyHeader()">
+            </div>
+            <div class="flex gap-4 shrink-0">
+              <div class="text-center">
+                <label class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-2 block">Rende</label>
+                <input type="number" value="2" id="yield-qty" min="0.01" step="0.01"
+                  class="w-20 border-2 border-stone-200 rounded-xl px-3 py-2 text-center text-xl font-black text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  oninput="recalcTotal(); markDirtyHeader()">
+              </div>
+              <div class="text-center">
+                <label class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-2 block">Unidade</label>
+                <select id="yield-unit" class="w-20 border-2 border-stone-200 rounded-xl px-3 py-2 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                  onchange="recalcTotal(); markDirtyHeader()">
+                  <option value="kg" selected>kg</option>
+                  <option value="g">g</option>
+                  <option value="L">L</option>
+                  <option value="ml">ml</option>
+                  <option value="un">un</option>
+                  <option value="m">m</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela de Componentes (Alta Densidade) -->
+        <div class="bg-white border-2 border-stone-100 rounded-[1.5rem] shadow-sm overflow-hidden text-sm mb-6">
+
+          <!-- Header (desktop) -->
+          <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-stone-50 border-b-2 border-stone-100 font-bold uppercase tracking-wider text-[11px] text-stone-500">
+            <div class="col-span-1 text-center">Tipo</div>
+            <div class="col-span-4">Componente</div>
+            <div class="col-span-2 text-center">Preço Unit.</div>
+            <div class="col-span-2 text-center">Qtd. Usada</div>
+            <div class="col-span-2 text-right">Custo Linha</div>
+            <div class="col-span-1 text-center">Ação</div>
+          </div>
+
+          <!-- Components Body -->
+          <div class="divide-y-2 divide-stone-50 p-4 md:p-0 space-y-4 md:space-y-0" id="comp-container">
+
+            <!-- COMPONENT ROW 1: Insumo -->
+            <div class="comp-row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none" data-type="insumo" data-unit-price="3.60">
+              <div class="col-span-1 md:col-span-1 flex justify-center">
+                <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border">Insumo</span>
+              </div>
+              <div class="col-span-1 md:col-span-4 flex items-center gap-2">
+                <i data-lucide="wheat" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                <span class="font-bold text-stone-900">Farinha de Trigo</span>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Preço Unit.</span>
+                  <span class="text-stone-500 font-semibold text-xs">R$ 3,60/kg</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Usada (kg)</span>
+                  <input type="number" value="0.50" min="0" step="0.01" data-unit-price="3.60"
+                    class="qty-input w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="calcLineCost(this); recalcTotal()">
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Custo Linha</span>
+                  <span class="line-cost font-black text-emerald-600 text-base md:text-sm">R$ 1,80</span>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais</button>
+                <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="removeComponent(this)">⨯</button>
+              </div>
+            </div>
+
+            <!-- COMPONENT ROW 2: Insumo -->
+            <div class="comp-row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none" data-type="insumo" data-unit-price="4.00">
+              <div class="col-span-1 md:col-span-1 flex justify-center">
+                <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border">Insumo</span>
+              </div>
+              <div class="col-span-1 md:col-span-4 flex items-center gap-2">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                <span class="font-bold text-stone-900">Açúcar Refinado</span>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Preço Unit.</span>
+                  <span class="text-stone-500 font-semibold text-xs">R$ 4,00/kg</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Usada (kg)</span>
+                  <input type="number" value="1.00" min="0" step="0.01" data-unit-price="4.00"
+                    class="qty-input w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="calcLineCost(this); recalcTotal()">
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Custo Linha</span>
+                  <span class="line-cost font-black text-emerald-600 text-base md:text-sm">R$ 4,00</span>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais</button>
+                <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="removeComponent(this)">⨯</button>
+              </div>
+            </div>
+
+            <!-- COMPONENT ROW 3: FICHA TÉCNICA aninhada (Sub-composição) -->
+            <div class="comp-row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-l-4 md:border-l-terracotta-200 md:border-y-0 md:border-r-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none" data-type="ficha" data-unit-price="25.00">
+              <div class="col-span-1 md:col-span-1 flex justify-center">
+                <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border">Ficha</span>
+              </div>
+              <div class="col-span-1 md:col-span-4 flex items-center gap-2">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-terracotta-500 shrink-0"></i>
+                <div>
+                  <span class="font-bold text-stone-900">Cobertura de Chocolate</span>
+                  <p class="text-[10px] text-stone-400 font-medium">Ficha técnica aninhada</p>
+                </div>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Preço Unit.</span>
+                  <span class="text-terracotta-500 font-semibold text-xs">R$ 25,00/kg</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Usada (kg)</span>
+                  <input type="number" value="0.10" min="0" step="0.01" data-unit-price="25.00"
+                    class="qty-input w-full md:w-20 border-2 border-terracotta-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="calcLineCost(this); recalcTotal()">
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Custo Linha</span>
+                  <span class="line-cost font-black text-emerald-600 text-base md:text-sm">R$ 2,50</span>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais</button>
+                <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="removeComponent(this)">⨯</button>
+              </div>
+            </div>
+
+            <!-- COMPONENT ROW 4: Leite -->
+            <div class="comp-row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 md:border-0 hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none" data-type="insumo" data-unit-price="6.00">
+              <div class="col-span-1 md:col-span-1 flex justify-center">
+                <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border">Insumo</span>
+              </div>
+              <div class="col-span-1 md:col-span-4 flex items-center gap-2">
+                <i data-lucide="droplets" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                <span class="font-bold text-stone-900">Leite Integral</span>
+              </div>
+              <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Preço Unit.</span>
+                  <span class="text-stone-500 font-semibold text-xs">R$ 6,00/L</span>
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Usada (L)</span>
+                  <input type="number" value="0.25" min="0" step="0.01" data-unit-price="6.00"
+                    class="qty-input w-full md:w-20 border-2 border-stone-200 rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+                    oninput="calcLineCost(this); recalcTotal()">
+                </div>
+                <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+                  <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Custo Linha</span>
+                  <span class="line-cost font-black text-emerald-600 text-base md:text-sm">R$ 1,50</span>
+                </div>
+              </div>
+              <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+                <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais</button>
+                <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="removeComponent(this)">⨯</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Adicionar Componente (com busca) -->
+          <div class="px-4 md:px-6 py-4 border-t-2 border-stone-100 bg-stone-50/50">
+            <div class="relative" id="add-comp-area">
+              <div class="flex items-center gap-3">
+                <i data-lucide="search" class="w-4 h-4 text-stone-400 shrink-0"></i>
+                <input type="text" id="comp-search" placeholder="Buscar Insumo ou Ficha Técnica para adicionar..."
+                  class="w-full bg-transparent border-none text-sm font-semibold text-stone-700 placeholder:text-stone-400 focus:outline-none"
+                  oninput="showSearchDropdown()" onfocus="showSearchDropdown()" onblur="setTimeout(()=>hideDropdown(),150)">
+                <span class="text-[10px] font-bold text-stone-400 hidden md:inline">Tab para navegar</span>
+              </div>
+
+              <!-- Dropdown de Busca -->
+              <div class="search-dropdown absolute left-0 right-0 top-full mt-2 bg-white border-2 border-stone-100 rounded-2xl shadow-lg z-30 overflow-hidden" id="comp-dropdown">
+                <div class="px-4 py-2 bg-stone-50 border-b border-stone-100">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Insumos</p>
+                </div>
+                <div onclick="addComponent('insumo','Ovos','R$ 0,80/un', 0.80)" class="flex items-center gap-3 px-4 py-3 hover:bg-amber-50/50 cursor-pointer transition-colors">
+                  <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border bg-stone-50 text-stone-500 border-stone-200">Insumo</span>
+                  <i data-lucide="egg" class="w-3.5 h-3.5 text-amber-600"></i>
+                  <div class="flex-1">
+                    <p class="font-bold text-stone-900 text-sm">Ovos</p>
+                  </div>
+                  <span class="text-xs text-stone-400 font-semibold">R$ 0,80/un</span>
+                </div>
+                <div onclick="addComponent('insumo','Manteiga','R$ 12,00/kg', 12.00)" class="flex items-center gap-3 px-4 py-3 hover:bg-amber-50/50 cursor-pointer transition-colors">
+                  <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border bg-stone-50 text-stone-500 border-stone-200">Insumo</span>
+                  <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-600"></i>
+                  <div class="flex-1">
+                    <p class="font-bold text-stone-900 text-sm">Manteiga</p>
+                  </div>
+                  <span class="text-xs text-stone-400 font-semibold">R$ 12,00/kg</span>
+                </div>
+                <div class="px-4 py-2 bg-stone-50 border-t border-stone-100 border-b">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Fichas Técnicas</p>
+                </div>
+                <div onclick="addComponent('ficha','Calda de Laranja','R$ 18,00/L', 18.00)" class="flex items-center gap-3 px-4 py-3 hover:bg-amber-50/50 cursor-pointer transition-colors">
+                  <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border bg-terracotta-50 text-terracotta-500 border-terracotta-200">Ficha</span>
+                  <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-terracotta-500"></i>
+                  <div class="flex-1">
+                    <p class="font-bold text-stone-900 text-sm">Calda de Laranja</p>
+                    <p class="text-[10px] text-stone-400">Ficha técnica</p>
+                  </div>
+                  <span class="text-xs text-terracotta-500 font-semibold">R$ 18,00/L</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legenda de tipos -->
+        <div class="flex items-center gap-4 text-xs text-stone-400 font-medium mb-6">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-1 rounded-sm bg-stone-200 inline-block"></span>
+            <span>Insumo simples</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-1 rounded-sm bg-terracotta-300 inline-block"></span>
+            <span>Ficha Técnica aninhada</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BARRA FIXA: CUSTO TOTAL DA FICHA (só no Editor) -->
+  <div id="cost-bar" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 p-4 md:p-5 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 hidden md:ml-64">
+    <div class="max-w-6xl mx-auto md:ml-64 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-stone-900 text-white rounded-2xl p-4 md:px-6 col-span-2 flex justify-between items-center shadow-lg">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400">Custo Total da Ficha</p>
+          <p class="text-2xl md:text-3xl font-black" id="total-cost">R$ 9,80</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400">Custo por Rendimento</p>
+          <p class="text-xl font-black text-amber-400" id="unit-cost">R$ 4,90 / kg</p>
+        </div>
+      </div>
+      <div class="bg-white border-2 border-stone-100 rounded-2xl p-4 flex flex-col justify-center shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Rendimento</p>
+        <p class="text-lg font-black text-stone-900" id="display-yield">2 kg</p>
+      </div>
+      <div class="bg-white border-2 border-stone-100 rounded-2xl p-4 flex flex-col justify-center shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Componentes</p>
+        <p class="text-lg font-black text-stone-900" id="display-comp-count">4 itens</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTO-SAVE TOAST -->
+  <div id="save-toast" class="fixed bottom-28 right-6 z-50 bg-stone-900 text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span>Ficha salva automaticamente</span>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    let saveTimer = null;
+    let currentView = 'lista';
+
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('view-lista').classList.toggle('hidden', view !== 'lista');
+      document.getElementById('view-editor').classList.toggle('hidden', view !== 'editor');
+      document.getElementById('cost-bar').classList.toggle('hidden', view !== 'editor');
+      document.getElementById(`tab-lista`).className = view === 'lista'
+        ? 'px-5 py-1.5 bg-white text-stone-900 rounded-lg shadow-sm border border-stone-200/50'
+        : 'px-5 py-1.5 text-stone-500 hover:text-stone-700 transition-colors';
+      document.getElementById(`tab-editor`).className = view === 'editor'
+        ? 'px-5 py-1.5 bg-white text-stone-900 rounded-lg shadow-sm border border-stone-200/50'
+        : 'px-5 py-1.5 text-stone-500 hover:text-stone-700 transition-colors';
+      if (view === 'editor') recalcTotal();
+    }
+
+    function newFicha() { switchView('editor'); }
+
+    // === CALC LINE COST ===
+    function calcLineCost(input) {
+      const row = input.closest('.comp-row');
+      const unitPrice = parseFloat(input.dataset.unitPrice) || 0;
+      const qty = parseFloat(input.value) || 0;
+      const cost = unitPrice * qty;
+      const costEl = row.querySelector('.line-cost');
+      costEl.textContent = 'R$ ' + cost.toFixed(2).replace('.', ',');
+      // Flash animation
+      costEl.classList.add('cost-highlight');
+      setTimeout(() => costEl.classList.remove('cost-highlight'), 800);
+    }
+
+    // === RECALC TOTAL ===
+    function recalcTotal() {
+      let total = 0;
+      document.querySelectorAll('#comp-container .qty-input').forEach(input => {
+        const unitPrice = parseFloat(input.dataset.unitPrice) || 0;
+        const qty = parseFloat(input.value) || 0;
+        total += unitPrice * qty;
+      });
+      const yieldQty = parseFloat(document.getElementById('yield-qty')?.value) || 1;
+      const yieldUnit = document.getElementById('yield-unit')?.value || 'kg';
+      const unitCost = total / yieldQty;
+      const count = document.querySelectorAll('#comp-container .comp-row').length;
+
+      document.getElementById('total-cost').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+      document.getElementById('unit-cost').textContent = 'R$ ' + unitCost.toFixed(2).replace('.', ',') + ' / ' + yieldUnit;
+      document.getElementById('display-yield').textContent = yieldQty + ' ' + yieldUnit;
+      document.getElementById('display-comp-count').textContent = count + ' itens';
+
+      scheduleSave();
+    }
+
+    function markDirtyHeader() {
+      const bar = document.getElementById('status-bar');
+      const text = document.getElementById('status-text');
+      bar.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-100');
+      bar.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-100');
+      text.textContent = 'Salvando...';
+      scheduleSave();
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        const bar = document.getElementById('status-bar');
+        const text = document.getElementById('status-text');
+        bar.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-100');
+        bar.classList.remove('bg-amber-50', 'text-amber-700', 'border-amber-100');
+        text.textContent = 'Salvo';
+        showToast();
+      }, 1500);
+    }
+
+    function showToast() {
+      const toast = document.getElementById('save-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // === ADD COMPONENT ===
+    function addComponent(type, name, priceLabel, unitPrice) {
+      hideDropdown();
+      document.getElementById('comp-search').value = '';
+      const container = document.getElementById('comp-container');
+      const isFicha = type === 'ficha';
+      const row = document.createElement('div');
+      row.className = `comp-row grid grid-cols-1 md:grid-cols-12 gap-4 md:items-center p-5 md:px-6 md:py-3 bg-white rounded-2xl md:rounded-none border-2 border-stone-100 ${isFicha ? 'md:border-l-4 md:border-l-terracotta-200 md:border-y-0 md:border-r-0' : 'md:border-0'} hover:bg-amber-50/50 transition-colors shadow-sm md:shadow-none`;
+      row.dataset.type = type;
+      row.dataset.unitPrice = unitPrice;
+      const badgeClass = isFicha ? 'bg-terracotta-50 text-terracotta-500 border-terracotta-200' : 'bg-stone-50 text-stone-500 border-stone-200';
+      const iconName = isFicha ? 'clipboard-list' : 'package';
+      const iconColor = isFicha ? 'text-terracotta-500' : 'text-amber-600';
+      const borderColor = isFicha ? 'border-terracotta-200' : 'border-stone-200';
+      row.innerHTML = `
+        <div class="col-span-1 md:col-span-1 flex justify-center">
+          <span class="type-badge text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border ${badgeClass}">${isFicha ? 'Ficha' : 'Insumo'}</span>
+        </div>
+        <div class="col-span-1 md:col-span-4 flex items-center gap-2">
+          <i data-lucide="${iconName}" class="w-3.5 h-3.5 ${iconColor} shrink-0"></i>
+          <div><span class="font-bold text-stone-900">${name}</span>${isFicha ? '<p class="text-[10px] text-stone-400 font-medium">Ficha técnica aninhada</p>' : ''}</div>
+        </div>
+        <div class="md:contents grid grid-cols-2 gap-3 mt-1 md:mt-0">
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl text-center">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Preço Unit.</span>
+            <span class="${isFicha ? 'text-terracotta-500' : 'text-stone-500'} font-semibold text-xs">${priceLabel}</span>
+          </div>
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block items-center text-center">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Qtd. Usada</span>
+            <input type="number" value="" placeholder="0" min="0" step="0.01" data-unit-price="${unitPrice}"
+              class="qty-input w-full md:w-20 border-2 ${borderColor} rounded-lg px-2 py-1.5 text-center font-bold text-stone-900 focus:border-amber-400 focus:outline-none bg-white transition-all"
+              oninput="calcLineCost(this); recalcTotal()" autofocus>
+          </div>
+          <div class="col-span-1 md:col-span-2 bg-stone-50 md:bg-transparent p-3 md:p-0 rounded-xl flex flex-col md:block md:text-right">
+            <span class="md:hidden text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Custo Linha</span>
+            <span class="line-cost font-black text-stone-300 text-base md:text-sm">—</span>
+          </div>
+        </div>
+        <div class="col-span-1 md:col-span-1 mt-2 md:mt-0 text-center">
+          <button class="md:hidden w-full border-2 border-stone-200 text-stone-600 font-bold text-xs py-2 rounded-xl hover:bg-stone-50 transition-colors">Mais</button>
+          <button class="hidden md:inline-block text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg text-xs hover:bg-red-100 transition-colors" onclick="removeComponent(this)">⨯</button>
+        </div>`;
+      container.appendChild(row);
+      lucide.createIcons();
+      recalcTotal();
+    }
+
+    function removeComponent(btn) {
+      btn.closest('.comp-row').remove();
+      recalcTotal();
+    }
+
+    function showSearchDropdown() {
+      document.getElementById('comp-dropdown').classList.add('open');
+    }
+    function hideDropdown() {
+      document.getElementById('comp-dropdown').classList.remove('open');
+    }
+
+    // === CTRL+S ===
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        scheduleSave();
+      }
+    });
+
+    lucide.createIcons();
+    document.getElementById('status-bar').classList.remove('hidden');
+    document.getElementById('status-bar').classList.add('flex');
+  </script>
+</body>
+</html>
