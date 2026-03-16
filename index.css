@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-900: #78350f;
+
+  --color-stone-50: #fafaf9;
+  --color-stone-100: #f5f5f4;
+  --color-stone-200: #e7e5e4;
+  --color-stone-500: #78716c;
+  --color-stone-800: #292524;
+  --color-stone-900: #1c1917;
+
+  --color-terracotta-50: #fef5f2;
+  --color-terracotta-100: #fcebe5;
+  --color-terracotta-200: #fad1c2;
+  --color-terracotta-500: #c05621;
+  --color-terracotta-600: #9c4221;
+  --color-terracotta-700: #7b341e;
+}
+
+:root {
+  font-family: 'Outfit', sans-serif;
+}
+
+body {
+  background-color: #fcfaf8;
+  color: #1c1917;
+  margin: 0;
+}
+
+/* Utilitários globais para animações do sistema */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(-8px); }
+}

@@ -64,6 +64,8 @@ Aviso: **Não instale ferramentas localmente** (ex: Node/npm no Host).
 
 Este projeto está em desenvolvimento inicial. Sugestões de nomes e funcionalidades são bem-vindas!
 
+O projeto utiliza **GitHub Actions** para CI/CD. A cada push na branch `main`, os testes são executados e o deploy é feito automaticamente para o GitHub Pages.
+
 ## Hospedagem
 
 Esta aplicação será hospedada gratuitamente no GitHub Pages, facilitando o acesso e a manutenção sem custos.

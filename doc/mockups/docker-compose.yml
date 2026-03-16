@@ -1,5 +1,6 @@
 services:
-  mockup-portal:
+  atelie-mockup-portal:
+    container_name: atelie-mockup-portal
     build: .
     ports:
       - "3000:3000"
