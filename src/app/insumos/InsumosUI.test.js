@@ -5,9 +5,11 @@ import InsumosController from './InsumosController.js';
 import InsumosView from './InsumosView.js';
 import InsumosLogic from '../../logic/InsumosLogic.js';
 import Insumo from '../../logic/values/Insumo.js';
+import InsumosDatabase from '../../infrastructure/InsumosDatabase.js';
+import { indexedDB, IDBKeyRange } from 'fake-indexeddb';
 
-describe('Insumos UI Controller/View Tests (Mocked DB)', () => {
-  let mockDb, logic, view, controller;
+describe('Insumos UI Controller/View Tests (Nullable DB)', () => {
+  let db, logic, view, controller;
 
   beforeEach(async () => {
     document.body.innerHTML = `
@@ -26,15 +28,13 @@ describe('Insumos UI Controller/View Tests (Mocked DB)', () => {
       </div>
     `;
 
-    mockDb = {
-      getAll: vi.fn(() => Promise.resolve([])),
-      save: vi.fn((insumo) => Promise.resolve({ ...insumo, id: insumo.id || 999 })),
-      delete: vi.fn(() => Promise.resolve(true)),
-    };
+    // Utilizando o Embedded Stub (Testing Without Mocks)
+    db = InsumosDatabase.createNull({ indexedDB, IDBKeyRange });
+    await db.clear();
 
     logic = new InsumosLogic();
     view = new InsumosView();
-    controller = new InsumosController(view, mockDb, logic);
+    controller = new InsumosController(view, db, logic);
     
     vi.stubGlobal('confirm', () => true);
     
@@ -43,7 +43,6 @@ describe('Insumos UI Controller/View Tests (Mocked DB)', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    vi.restoreAllMocks();
   });
 
   it('deve adicionar uma nova linha e focar o nome', async () => {
@@ -64,43 +63,59 @@ describe('Insumos UI Controller/View Tests (Mocked DB)', () => {
     expect(row.className).toContain('row-dirty');
   });
 
-  it('deve ser capaz de salvar alterações manualmente via Controller', async () => {
+  it('deve ser capaz de salvar alterações manualmente via Controller (State-based test)', async () => {
     const addBtn = screen.getByText('Adicionar Insumo');
     fireEvent.click(addBtn);
 
     const nameInput = screen.getByPlaceholderText('Nome do insumo...');
-    await userEvent.type(nameInput, 'Trigo');
-    await userEvent.type(screen.getByPlaceholderText('0'), '10');
-    await userEvent.type(screen.getByPlaceholderText('0,00'), '50');
+    fireEvent.input(nameInput, { target: { value: 'Trigo' } });
+    fireEvent.input(screen.getByPlaceholderText('0'), { target: { value: '10' } });
+    fireEvent.input(screen.getByPlaceholderText('0,00'), { target: { value: '50' } });
 
     // Em vez de esperar o debounce (que falha no JSDOM), chamamos o salvamento manualmente
-    // Isso valida que o Controller consegue processar os itens "dirty" da View
     await controller._saveAll();
 
-    expect(mockDb.save).toHaveBeenCalled();
+    // State-Based Verification: checamos o estado no banco de dados "Nulado"
+    const saved = await db.getAll();
+    expect(saved).toHaveLength(1);
+    expect(saved[0].nome).toBe('Trigo');
+    expect(saved[0].quantidadeCompra).toBe(10);
+    expect(saved[0].precoCusto).toBe(50);
+    
     expect(document.querySelector('.row').className).not.toContain('row-dirty');
   });
 
-  it('deve deletar item e permitir undo', async () => {
-    const item = new Insumo({ id: 123, nome: 'Sal', quantidadeCompra: 1, unidadeMedida: 'un', precoCusto: 10 });
-    mockDb.getAll.mockResolvedValue([item]);
+  it('deve deletar item e permitir undo (State-based test)', async () => {
+    // Configura os dados iniciais do banco
+    const item = new Insumo({ nome: 'Sal', quantidadeCompra: 1, unidadeMedida: 'un', precoCusto: 10 });
+    const id = await db.save(item);
     
+    // Reinicia o controller para ler esses dados
     await controller.start();
 
     const deleteBtn = document.querySelector('.btn-delete');
     fireEvent.click(deleteBtn);
 
     await waitFor(() => {
+      // Confirma que sumiu da View
       return document.querySelectorAll('.row').length === 0;
     });
+
+    // Confirma que sumiu do Banco
+    let dbState = await db.getAll();
+    expect(dbState).toHaveLength(0);
 
     const undoBtn = screen.getByText('Desfazer');
     fireEvent.click(undoBtn);
 
     await waitFor(() => {
+      // Confirma que voltou para a View
       return document.querySelectorAll('.row').length === 1;
     });
     
-    expect(screen.getByDisplayValue('Sal')).toBeDefined();
+    // Confirma que voltou para o Banco
+    dbState = await db.getAll();
+    expect(dbState).toHaveLength(1);
+    expect(dbState[0].nome).toBe('Sal');
   });
 });
