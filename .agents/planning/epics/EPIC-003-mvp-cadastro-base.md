@@ -24,7 +24,7 @@ A premissa principal desse épico é utilizar e respeitar as bases técnicas já
 
 ### Pipeline da Entidade: Insumos
 - [x] [[TASK-009] Design UX: Mockup e Interface de Insumos](../tasks/TASK-009-design-insumos.md) — `doc/mockups/insumos-v1.html` ✅
-- [ ] [[TASK-010] Implementação: Módulo de Cadastros de Insumos](../tasks/TASK-010-feature-insumos.md)
+- [~] [[TASK-010] Implementação: Módulo de Cadastros de Insumos](../tasks/TASK-010-feature-insumos.md) — `IN_REVIEW`
 
 ### Pipeline da Entidade: Fichas Técnicas 
 - [x] [[TASK-011] Design UX: Mockup e Interface das Fichas Técnicas](../tasks/TASK-011-design-fichas-tecnicas.md) — `doc/mockups/fichas-tecnicas-v1.html` ✅
